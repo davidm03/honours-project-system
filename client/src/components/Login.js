@@ -48,8 +48,7 @@ class Login extends Component {
             password: password
         })
         .then(res => {
-            console.log(res.data.error);
-            if (res.data===true) {
+            if (res.data._id) {
                 this.setState({redirect: "/"});
             }
             else{

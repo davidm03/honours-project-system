@@ -26,7 +26,7 @@ exports.authenticateUser = function (username, password) {
             }
             else{
                 if (user.password==password) {
-                    resolve(true);
+                    resolve(user);
                 }
                 else{
                     resolve({error: "password", message: "Incorrect password."});

@@ -6,8 +6,8 @@ var userDAL = require('../src/user/user');
 router.post('/login', async function(req, res, next) {
     var user = req.body;
     var authenticated = await userDAL.authenticateUser(user.username, user.password);
-    if (authenticated===true) {
-        res.send(true);
+    if (authenticated._id) {
+        res.send(authenticated);
     }
     else{
         res.send(authenticated);
