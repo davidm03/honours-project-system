@@ -4,7 +4,7 @@ class Projects extends Component {
     constructor(props) {
         super(props);
         this.state = {  }
-        this.props.updateTitle("Projects");
+        //this.props.updateTitle("Projects");
     }
     render() { 
         return ( <></> );

@@ -4,7 +4,7 @@ class Users extends Component {
     constructor(props) {
         super(props);
         this.state = {  }
-        this.props.updateTitle("Users");
+        //this.props.updateTitle("Users");
     }
     render() { 
         return ( <></> );

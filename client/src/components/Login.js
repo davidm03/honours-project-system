@@ -48,8 +48,9 @@ class Login extends Component {
             password: password
         })
         .then(res => {
-            if (res.data._id) {
-                this.setState({redirect: "/"});
+            if (res.data.success) {
+              localStorage.setItem('access-token', res.token);
+              this.setState({redirect: "/"});
             }
             else{
                 if (res.data.error==="username") {

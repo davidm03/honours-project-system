@@ -120,9 +120,9 @@ class Dashboard extends Component {
   const handleDrawerClose = () => {
     this.setState({open: false});
   };
-  const updateTitle = (title) => {
+  /* const updateTitle = (title) => {
     this.setState({title: title});
-  }
+  } */
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
     return (
       <div className={classes.root}>
@@ -169,8 +169,8 @@ class Dashboard extends Component {
           <div className={classes.appBarSpacer} />
           <Container maxWidth="lg" className={classes.container}>
             <Switch>
-              <Route path="/users"><Users updateTitle={updateTitle}/></Route>
-              <Route path="/projects"><Projects updateTitle={updateTitle}/></Route>
+              <Route path="/users"><Users/></Route>
+              <Route path="/projects"><Projects/></Route>
             </Switch>
           </Container>
         </main>
