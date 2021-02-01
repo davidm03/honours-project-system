@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var userDAL = require('../src/user/user');
+var userDAL = require('../src/user/user.js');
+var authDAL = require('../src/user/auth.js');
 
 /* POST authentication for username and password */
 router.post('/login', async function(req, res, next) {
@@ -11,6 +12,17 @@ router.post('/login', async function(req, res, next) {
     }
     else{
         res.send(authenticated);
+    }
+});
+
+router.post('/verify', function(req, res) {
+    var token = req.body.token;
+    var verification = authDAL.verifyJWT(token);
+    if (verification!=false) {
+        res.send(verification);
+    }
+    else{
+        res.send("failed");
     }
 });
 

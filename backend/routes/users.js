@@ -16,7 +16,7 @@ router.post('/register', async function(req, res, next) {
     res.send({error: "username", message: "Username already in use."});
   }
   else{
-    var registered = await userDAL.registerUser(user.username, user.password);
+    var registered = await userDAL.registerUser(user.username, user.password, user.role);
     if (registered===true) {
         res.send(true);
     }

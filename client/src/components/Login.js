@@ -43,13 +43,14 @@ class Login extends Component {
         e.preventDefault();
         var username = document.getElementById('username').value;
         var password = document.getElementById('password').value;
-        axios.post('http://localhost:3000/auth/login', {
+        axios.post(process.env.REACT_APP_SERVER_URL + 'auth/login', {
             username: username,
             password: password
         })
         .then(res => {
-            if (res.data._id) {
-                this.setState({redirect: "/"});
+            if (res.data.success) {
+              localStorage.setItem('access-token', res.data.token);
+              this.setState({redirect:"/"});
             }
             else{
                 if (res.data.error==="username") {

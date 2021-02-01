@@ -1,4 +1,7 @@
 const User = require('./user.model');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { createJWT } = require('./auth.js');
 
 exports.findUserByUsername = function (username) {
     return new Promise((resolve, reject) => {
@@ -40,12 +43,29 @@ exports.authenticateUser = function (username, password) {
                 resolve({error: "username", message: "Username does not exist."});
             }
             else{
-                if (user.password==password) {
+                bcrypt.compare(password, user.password).then(isMatch => {
+                    if (!isMatch) {
+                        resolve({error: "password", message: "Incorrect password."});
+                    }
+
+                    let access_token = createJWT(
+                        user.username,
+                        user._id,
+                        user.role,
+                        3600
+                    );
+                    jwt.verify(access_token, process.env.TOKEN_SECRET, (err, decoded) => {
+                        if (err) {
+                            resolve({error: "password", message: "Unable to authenticate access."});
+                        }
+                        if (decoded) {
+                            resolve({success: true, token: access_token, message: user});
+                        }
+                    });
+                });
+                /* if (user.password==password) {
                     resolve(user);
-                }
-                else{
-                    resolve({error: "password", message: "Incorrect password."});
-                }
+                } */
             }            
         }).catch(function (err) {
             throw (err)
@@ -53,28 +73,36 @@ exports.authenticateUser = function (username, password) {
     });
 }
 
-exports.registerUser = function (username, password) {
+exports.registerUser = function (username, password, role) {
     return new Promise((resolve, reject) => {
         var newUser = new User({
             username,
-            password   
+            password,
+            role
         });
-        newUser.save(function (err) {
-            if (err) {
-                return err;
-            }
-            else {
-                resolve(true);
-            }
-        });
+        bcrypt.genSalt(10, function (err, salt){
+            bcrypt.hash(newUser.password, salt, function (err, hash) {
+                if (err) throw err;
+                newUser.password = hash;
+                newUser.save(function (err) {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve(true);
+                    }
+                });
+            })
+        })
     });
 }
 
-exports.addUser = function (username, password) {
+exports.addUser = function (username, password, role) {
     return new Promise((resolve, reject) => {
         var newUser = new User({
             username,
-            password   
+            password,
+            role  
         });
         newUser.save(function (err) {
             if (err) {
