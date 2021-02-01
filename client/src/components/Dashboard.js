@@ -22,6 +22,7 @@ import { mainListItems, secondaryListItems } from './listItems';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Users from './Users';
 import Projects from './Projects';
+import axios from 'axios';
 
 const drawerWidth = 240;
 
@@ -107,12 +108,25 @@ const useStyles = theme => ({
 class Dashboard extends Component {
   constructor(props){
     super(props);
-    this.state = {open: true, title: "Home"};
+    this.state = {open: true, title: "Home", user:{}};
+  }
+  getUserInfo = () => {
+    axios.post(process.env.REACT_APP_SERVER_URL + 'auth/verify', {token: localStorage.getItem('access-token')})
+    .then(res => {
+        if (res.data.username) {
+          this.setState({user: {username: res.data.username, id: res.data.userId}});
+        }
+        else{
+          localStorage.removeItem('access-token');
+          window.location.replace('http://localhost:5000/login');
+        }
+    })
+  }
+  componentDidMount() {
+    this.getUserInfo();
   }
   render() {
   const { classes } = this.props;
-  //const [open, setOpen] = React.useState(true);
-  //const [title, setTitle] = React.useState("Home");
 
   const handleDrawerOpen = () => {
     this.setState({open: true});
@@ -141,6 +155,7 @@ class Dashboard extends Component {
             <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
               {this.state.title}
             </Typography>
+            Logged in as: {this.state.user.username}
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />

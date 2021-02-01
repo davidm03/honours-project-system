@@ -47,7 +47,7 @@ class Register extends Component {
             this.setState({confPasswordError: "Passwords do not match."});
         }
         else{
-            axios.post('http://localhost:3000/users/register', {
+            axios.post(process.env.REACT_APP_SERVER_URL + 'users/register', {
             username: username,
             password: password
             })
