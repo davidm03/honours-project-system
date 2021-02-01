@@ -51,6 +51,7 @@ exports.authenticateUser = function (username, password) {
                     let access_token = createJWT(
                         user.username,
                         user._id,
+                        user.role,
                         3600
                     );
                     jwt.verify(access_token, process.env.TOKEN_SECRET, (err, decoded) => {
