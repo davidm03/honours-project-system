@@ -72,11 +72,12 @@ exports.authenticateUser = function (username, password) {
     });
 }
 
-exports.registerUser = function (username, password) {
+exports.registerUser = function (username, password, role) {
     return new Promise((resolve, reject) => {
         var newUser = new User({
             username,
-            password
+            password,
+            role
         });
         bcrypt.genSalt(10, function (err, salt){
             bcrypt.hash(newUser.password, salt, function (err, hash) {
@@ -95,11 +96,12 @@ exports.registerUser = function (username, password) {
     });
 }
 
-exports.addUser = function (username, password) {
+exports.addUser = function (username, password, role) {
     return new Promise((resolve, reject) => {
         var newUser = new User({
             username,
-            password   
+            password,
+            role  
         });
         newUser.save(function (err) {
             if (err) {
