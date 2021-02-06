@@ -6,7 +6,7 @@ var authDAL = require('../src/user/auth.js');
 /* POST authentication for username and password */
 router.post('/login', async function(req, res, next) {
     var user = req.body;
-    var authenticated = await userDAL.authenticateUser(user.username, user.password);
+    var authenticated = await userDAL.authenticateUser(user.email, user.password);
     if (authenticated._id) {
         res.send(authenticated);
     }
