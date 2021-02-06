@@ -11,12 +11,18 @@ router.get('/', async function(req, res, next) {
 /* POST register new user account */
 router.post('/register', async function(req, res, next) {
   var user = req.body;
-  var existingUser = await userDAL.findUserByUsername(user.username);
+  var existingUser = await userDAL.findUserByEmail(user.email);
   if (existingUser) {
-    res.send({error: "username", message: "Username already in use."});
+    res.send({error: "email", message: "Email already in use."});
   }
   else{
-    var registered = await userDAL.registerUser(user.username, user.password, user.role);
+    var registered = false;
+    if (user.role.includes('MODULE_LEADER') || user.role.includes('SUPERVISOR')) {
+      registered = await userDAL.registerStaff(user.email, user.first_name, user.surname, user.password, user.role, user.topic_area);
+    }
+    else if (user.role.includes('STUDENT')){
+      registered = await userDAL.registerStudent(user.email, user.first_name, user.surname, user.password, user.role, user.studentID);
+    }
     if (registered===true) {
         res.send(true);
     }
