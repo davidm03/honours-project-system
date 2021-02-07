@@ -44,26 +44,22 @@ export const mainListItems = (
   </div>
 );
 
-/* export const secondaryListItems = (
+export const adminListItems = (
   <div>
-    <ListSubheader inset>Saved reports</ListSubheader>
+    <ListSubheader inset>Manage Module</ListSubheader>
+    <Link to="/users" style={{textDecoration: 'none', color: 'black'}}>
     <ListItem button>
       <ListItemIcon>
-        <AssignmentIcon />
+        <PeopleIcon />
       </ListItemIcon>
-      <ListItemText primary="Current month" />
+      <ListItemText primary="Users" />
     </ListItem>
+    </Link>
     <ListItem button>
       <ListItemIcon>
-        <AssignmentIcon />
+        <FolderIcon />
       </ListItemIcon>
-      <ListItemText primary="Last quarter" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Year-end sale" />
+      <ListItemText primary="Projects" />
     </ListItem>
   </div>
-); */
+);
