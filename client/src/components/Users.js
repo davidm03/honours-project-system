@@ -72,6 +72,10 @@ class Users extends Component {
             })  
         }        
     }
+    handleUserFilter = (event) => {
+        this.setState({ filterText: event.target.value });
+
+    }
     componentDidMount() {
         this.loadUsers();
     }
@@ -90,7 +94,24 @@ class Users extends Component {
         if (users.length>0) {
             for (let index = 0; index < users.length; index++) {
                 const user = users[index];
-                rows.push({ id: user._id, email: user.email, first_name: user.first_name, surname: user.surname, role: user.role[0] });                
+                if (this.state.filterText) {
+                    var matchFound = false;
+                    var fullName = user.first_name + " " + user.surname;
+                    console.log(fullName);
+                    if (user.email.indexOf(this.state.filterText) > -1) {
+                        matchFound = true;
+                    }
+                    else if (fullName.indexOf(this.state.filterText) > -1) {
+                        matchFound = true;
+                    }
+
+                    if (matchFound) {
+                        rows.push({ id: user._id, email: user.email, first_name: user.first_name, surname: user.surname, role: user.role[0] }); 
+                    }
+                }
+                else {
+                   rows.push({ id: user._id, email: user.email, first_name: user.first_name, surname: user.surname, role: user.role[0] });   
+                }                              
             }
         }
         return ( 
@@ -214,6 +235,7 @@ class Users extends Component {
                         </InputAdornment>
                     ),
                     }}
+                    onChange={(e)=>{this.setState({ filterText: e.target.value });}}
                     />
                 </Grid>
             </Grid>
