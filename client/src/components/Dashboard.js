@@ -20,6 +20,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import { mainListItems, adminListItems } from './listItems';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import ProtectedRoute from './ProtectedRoute';
 import Users from './Users';
 import Projects from './Projects';
 import axios from 'axios';
@@ -108,9 +109,9 @@ const useStyles = theme => ({
 class Dashboard extends Component {
   constructor(props){
     super(props);
-    this.state = {open: true, user:{}};
+    this.state = { open: true };
   }
-  getUserInfo = () => {
+/*   getUserInfo = () => {
     axios.post(process.env.REACT_APP_SERVER_URL + 'auth/verify', {token: localStorage.getItem('access-token')})
     .then(res => {
         if (res.data.email) {
@@ -124,7 +125,7 @@ class Dashboard extends Component {
   }
   componentDidMount() {
     this.getUserInfo();
-  }
+  } */
   render() {
   const { classes } = this.props;
 
@@ -155,7 +156,7 @@ class Dashboard extends Component {
             <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
               Honours Project System
             </Typography>
-            Logged in as: {this.state.user.email}
+            Logged in as: { this.props.user.email }
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />
@@ -177,15 +178,19 @@ class Dashboard extends Component {
           </div>
           <Divider />
           <List>{mainListItems}</List>
-           <Divider />
-          <List>{adminListItems}</List>
+          {this.props.user.role.includes("MODULE_LEADER") && (
+            <>
+             <Divider />
+            <List>{adminListItems}</List>
+            </>
+          )}
         </Drawer>
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
           <Container maxWidth="lg" className={classes.container}>
             <Switch>
-              <Route path="/users"><Users/></Route>
-              <Route path="/projects"><Projects/></Route>
+              <ProtectedRoute path="/manage/users" component={()=><Users/>} admin={true} />
+              <Route path="/manage/projects"><Projects/></Route>
             </Switch>
           </Container>
         </main>

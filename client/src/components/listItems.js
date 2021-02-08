@@ -47,7 +47,7 @@ export const mainListItems = (
 export const adminListItems = (
   <div>
     <ListSubheader inset>Manage Module</ListSubheader>
-    <Link to="/users" style={{textDecoration: 'none', color: 'black'}}>
+    <Link to="/manage/users" style={{ textDecoration: 'none', color: 'black' }}>
     <ListItem button>
       <ListItemIcon>
         <PeopleIcon />
@@ -55,11 +55,13 @@ export const adminListItems = (
       <ListItemText primary="Users" />
     </ListItem>
     </Link>
+    <Link to="/manage/projects" style={{ textDecoration: 'none', color: 'black' }}>
     <ListItem button>
       <ListItemIcon>
         <FolderIcon />
       </ListItemIcon>
       <ListItemText primary="Projects" />
     </ListItem>
+    </Link>
   </div>
 );

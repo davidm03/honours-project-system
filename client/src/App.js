@@ -15,7 +15,7 @@ class App extends Component {
         <Switch>
         <Route exact path="/login" component={()=><Login/>} />
         <Route exact path="/register" component={Register} />
-        <ProtectedRoute path="/" component={()=><Dashboard />}/>
+        <ProtectedRoute path="/" component={(props)=><Dashboard {...props} />}/>
         </Switch>
       </div>
       </Router>
