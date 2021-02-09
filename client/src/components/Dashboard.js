@@ -3,7 +3,6 @@ import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
-import Box from '@material-ui/core/Box';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
@@ -12,18 +11,17 @@ import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import Badge from '@material-ui/core/Badge';
 import Container from '@material-ui/core/Container';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import Link from '@material-ui/core/Link';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import { mainListItems, adminListItems } from './listItems';
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute';
 import Users from './Users';
 import Projects from './Projects';
-import axios from 'axios';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import Button from '@material-ui/core/Button';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
 const drawerWidth = 240;
 
@@ -109,24 +107,16 @@ const useStyles = theme => ({
 class Dashboard extends Component {
   constructor(props){
     super(props);
-    this.state = { open: true };
+    this.state = { open: true, redirect: null };
   }
-/*   getUserInfo = () => {
-    axios.post(process.env.REACT_APP_SERVER_URL + 'auth/verify', {token: localStorage.getItem('access-token')})
-    .then(res => {
-        if (res.data.email) {
-          this.setState({user: {email: res.data.email, id: res.data.userId}});
-        }
-        else{
-          localStorage.removeItem('access-token');
-          window.location.replace('http://localhost:5000/login');
-        }
-    })
+  handleLogout = () => {
+    localStorage.removeItem('access-token');
+    this.setState({ redirect: "/login" });
   }
-  componentDidMount() {
-    this.getUserInfo();
-  } */
   render() {
+  if (this.state.redirect) {
+   return <Redirect to={this.state.redirect} /> 
+  }
   const { classes } = this.props;
 
   const handleDrawerOpen = () => {
@@ -135,9 +125,6 @@ class Dashboard extends Component {
   const handleDrawerClose = () => {
     this.setState({open: false});
   };
-  /* const updateTitle = (title) => {
-    this.setState({title: title});
-  } */
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
     return (
       <div className={classes.root}>
@@ -155,12 +142,17 @@ class Dashboard extends Component {
             </IconButton>
             <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
               Honours Project System
-            </Typography>
-            Logged in as: { this.props.user.email }
+            </Typography>         
+            <Button endIcon={<ArrowDropDownIcon />} style={{color: "white"}}>
+              { this.props.user.email }
+            </Button>
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />
               </Badge>
+            </IconButton>
+            <IconButton color="inherit" onClick={this.handleLogout}>
+              <ExitToAppIcon />
             </IconButton>
           </Toolbar>
         </AppBar>
@@ -190,7 +182,7 @@ class Dashboard extends Component {
           <Container maxWidth="lg" className={classes.container}>
             <Switch>
               <ProtectedRoute path="/manage/users" component={()=><Users/>} admin={true} />
-              <Route path="/manage/projects"><Projects/></Route>
+              <ProtectedRoute path="/manage/projects" component={()=><Projects/>} admin={true} />
             </Switch>
           </Container>
         </main>
