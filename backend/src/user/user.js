@@ -61,7 +61,13 @@ exports.authenticateUser = function (email, password) {
                             resolve({error: "password", message: "Unable to authenticate access."});
                         }
                         if (decoded) {
-                            resolve({success: true, token: access_token, message: user});
+                            User.findByIdAndUpdate(user._id, {last_login: new Date() / 1000}, function (err, updatedUser) {
+                                if (err) {
+                                    reject(err);
+                                }
+                                resolve({success: true, token: access_token, message: updatedUser});
+                            })
+                            
                         }
                     });
                 });

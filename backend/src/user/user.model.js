@@ -9,7 +9,7 @@ let User = new Schema({
     surname: { type: String },
     password: { type: String, required: true },
     role: { type: Array },
-    last_login: { type: Date }
+    last_login: { type: Number }
     //project: { type: Schema.Types.ObjectId, ref: 'Project'},
     //supervision_requests: [{ type: Schema.Types.ObjectId, ref: 'Request' }]
 }, options);
