@@ -15,11 +15,23 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Radio from '@material-ui/core/Radio';
+import { IconButton } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
+
+import Snackbar from '@material-ui/core/Snackbar';
+import Alert from '@material-ui/lab/Alert';
 
 class Users extends Component {
     constructor(props) {
         super(props);
-        this.state = { users:[], addUserDialog: false, addUserSelectedValue: "Supervisor", addUserConfPasswordError: null }
+        this.state = { 
+            users:[], 
+            addUserDialog: false,
+            deleteUsersDialog: false, 
+            addUserSelectedValue: "Supervisor", 
+            addUserConfPasswordError: null,
+            selectedUsers: []
+        }
     }
     loadUsers = () => {
         axios.get(process.env.REACT_APP_SERVER_URL + 'users')
@@ -33,8 +45,11 @@ class Users extends Component {
         var dialog = this.state.addUserDialog;
         this.setState({ addUserDialog: !dialog }); 
     }
+    toggleDeleteUsersDialog = () => {
+        var dialog = this.state.deleteUsersDialog;
+        this.setState({ deleteUsersDialog: !dialog });
+    }
     addUserChangeSelected = (event) => {
-        console.log(event.target.value);
         this.setState({ addUserSelectedValue: event.target.value });
     }
     handleAddNewUser = (event) => {
@@ -65,16 +80,34 @@ class Users extends Component {
                 if (res.data===true) {
                     this.loadUsers();
                     this.toggleAddUserDialog();
+                    this.setState({ successMessage: "Users successfully added." });
                 }
                 else if (res.data.error==="email") {
                     this.setState({ addUserEmailError: "Email address already in use." });
+                }
+                else {
+                    this.toggleDeleteUsersDialog();
+                    this.setState({ errorMessage: "Error: Users could not be added." });
                 }
             })  
         }        
     }
     handleUserFilter = (event) => {
         this.setState({ filterText: event.target.value });
-
+    }
+    handleDeleteUsers = () => {
+        axios.post(process.env.REACT_APP_SERVER_URL + 'users/delete', { userIDs: this.state.selectedUsers })
+        .then(res => {
+            if (res.data===true) {
+                this.loadUsers();
+                this.toggleDeleteUsersDialog();
+                this.setState({ selectedUsers: [], successMessage: "Users successfully deleted." });
+            }
+            else {
+                this.toggleDeleteUsersDialog();
+                this.setState({ errorMessage: "Error: Users could not be deleted." });
+            }
+        });
     }
     componentDidMount() {
         this.loadUsers();
@@ -129,6 +162,34 @@ class Users extends Component {
                     >
                     Add User
                     </Button>
+                    {this.state.selectedUsers.length > 0 && (
+                        <>
+                        <IconButton onClick={this.toggleDeleteUsersDialog}>
+                            <DeleteIcon/>
+                        </IconButton>
+                        <Dialog
+                        open={this.state.deleteUsersDialog}
+                        onClose={this.toggleDeleteUsersDialog}
+                        aria-labelledby="alert-dialog-title"
+                        aria-describedby="alert-dialog-description"
+                      >
+                        <DialogTitle id="alert-dialog-title">{"Delete users?"}</DialogTitle>
+                        <DialogContent>
+                          <DialogContentText id="alert-dialog-description">
+                            Are you sure you want to delete {this.state.selectedUsers.length} users from this application?
+                          </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                          <Button onClick={this.toggleDeleteUsersDialog} color="primary">
+                            Cancel
+                          </Button>
+                          <Button onClick={this.handleDeleteUsers} color="primary" autoFocus>
+                            Yes, I'm sure
+                          </Button>
+                        </DialogActions>
+                      </Dialog>
+                      </>
+                    )}
                     <Dialog open={this.state.addUserDialog} onClose={this.toggleAddUserDialog}>
                         <DialogTitle id="form-dialog-title">Add User</DialogTitle>
                         <form onSubmit={this.handleAddNewUser}>
@@ -241,8 +302,26 @@ class Users extends Component {
             </Grid>
             </div>
             <div style={{ height: 700, width: '100%' }}>
-                <DataGrid rows={rows} columns={columns} pageSize={10} checkboxSelection/>
+                <DataGrid 
+                rows={rows} 
+                columns={columns} 
+                pageSize={10} 
+                checkboxSelection 
+                onSelectionChange={(newSelection) => { 
+                    this.setState({ selectedUsers: newSelection.rowIds });
+                }}
+                />
             </div>
+            <Snackbar open={this.state.successMessage} autoHideDuration={6000} onClose={()=>{this.setState({ successMessage: null });}}>
+                <Alert onClose={()=>{this.setState({ successMessage: null });}} severity="success">
+                {this.state.successMessage}
+                </Alert>
+            </Snackbar>
+            <Snackbar open={this.state.errorMessage} autoHideDuration={6000} onClose={()=>{this.setState({ errorMessage: null });}}>
+                <Alert onClose={()=>{this.setState({ errorMessage: null });}} severity="error">
+                {this.state.errorMessage}
+                </Alert>
+            </Snackbar>
         </> 
         );
     }

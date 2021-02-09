@@ -40,10 +40,13 @@ router.post('/update', async function(req, res, next) {
 
 /* POST delete a user */
 router.post('/delete', async function(req, res, next) {
-  var user = req.body;
-  var success = userDAL.deleteUser(user._id);
+  var users = req.body.userIDs;
+  var success = userDAL.deleteUsers(users);
     if (success===true) {
         res.send(true);
+    }
+    else {
+      res.send(false);
     }
 });
 

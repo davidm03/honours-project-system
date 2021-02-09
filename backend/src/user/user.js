@@ -172,11 +172,16 @@ exports.updateUser = function(id, update) {
     });
 }
 
-exports.deleteUser = function(id) {
-    User.findByIdAndDelete(id, function (err, doc) {
-        if (err) {
-            throw (err);
-        }
-    });
+exports.deleteUsers = function(users) {
+    for (let index = 0; index < users.length; index++) {
+        const userID = users[index];
+
+        User.findByIdAndDelete(userID, function (err, doc) {
+            if (err) {
+                return false;
+            }
+        });        
+    }
+    return true;
 }
 
