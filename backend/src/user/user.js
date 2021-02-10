@@ -19,6 +19,20 @@ exports.findUserByEmail = function (email) {
     });
 }
 
+exports.findUserById = function (id) {
+    return new Promise((resolve, reject) => {
+        User.findOne({ _id: id }, function (err, user) {
+            if (err) {
+                console.log('An error has been encounted');
+                reject(err);
+            }
+            resolve(user);
+        }).catch(function (err) {
+            throw (err)
+        });
+    });
+}
+
 exports.getAllUsers = function () {
     return new Promise((resolve, reject) => {
         User.find({}, function (err, users) {

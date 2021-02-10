@@ -50,4 +50,16 @@ router.post('/delete', async function(req, res, next) {
     }
 });
 
+router.get('/view/:id', async function(req, res, next) {
+  var userID = req.params["id"];
+  var user = await userDAL.findUserById(userID);
+  if (user) {
+    res.send(user);
+  }
+  else {
+    res.send(false);
+  }
+
+});
+
 module.exports = router;

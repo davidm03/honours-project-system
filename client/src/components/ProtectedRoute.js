@@ -6,7 +6,6 @@ class ProtectedRoute extends Component {
     constructor(props){
         super(props);
         this.state = { loading: true, isTokenValidated: false };
-        console.log(props);
     }
     verifyToken = () => {
         axios.post(process.env.REACT_APP_SERVER_URL + 'auth/verify', { token: localStorage.getItem('access-token') })
@@ -41,7 +40,7 @@ class ProtectedRoute extends Component {
         const Component = this.props.component;
         const user = this.state.user;
         return this.state.isTokenValidated ? (
-        <Component user={ user } />
+        <Component user={user} id={this.props.computedMatch.params.id ? this.props.computedMatch.params.id : null} />
         ) : (
             this.state.loading ? 'Loading...' : <Redirect to={{ pathname: '/login' }} />
         )

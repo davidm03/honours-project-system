@@ -7,18 +7,20 @@ import SearchIcon from '@material-ui/icons/Search';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import { IconButton } from '@material-ui/core';
+import { Button, IconButton } from '@material-ui/core';
 import RefreshIcon from '@material-ui/icons/Refresh';
 
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
+import { Redirect } from 'react-router-dom';
 
 class Users extends Component {
     constructor(props) {
         super(props);
         this.state = { 
             users:[], 
-            selectedUsers: []
+            selectedUsers: [],
+            redirect: null
         }
     }
     loadUsers = () => {
@@ -32,10 +34,17 @@ class Users extends Component {
     handleUserFilter = (event) => {
         this.setState({ filterText: event.target.value });
     }
+    handleViewUserClick = () => {
+        this.setState({ redirect: "/view/user/" + this.state.selectedUsers.pop() });
+    }
     componentDidMount() {
         this.loadUsers();
     }
     render() {
+        if (this.state.redirect) {
+            return <Redirect to={this.state.redirect} />
+        }
+
         var users = this.state.users;
         const columns = [
             {field: 'id', headerName: 'ID', width: 250},
@@ -44,13 +53,30 @@ class Users extends Component {
             {field: 'email', headerName: 'Email', width: 170},
             {field: 'role', headerName: 'Role', width: 150},
             {field: 'last_login', headerName: 'Last Login', width: 150},
-            {field: 'actions', headerName: 'Actions', width: 150}
+            {
+                field: "actions",
+                headerName: 'Actions',
+                width: 150,
+                renderCell: () => (
+                  <strong>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      onClick={()=>{this.handleViewUserClick()}}
+                    >
+                      View
+                    </Button>
+                  </strong>
+                ),
+            }
         ];
         const rows = [];
         if (users.length>0) {
             for (let index = 0; index < users.length; index++) {
                 const user = users[index];
                 var lastLogin = new Date(user.last_login * 1000).toLocaleDateString('en-GB');
+
                 if (this.state.filterText) {
                     var matchFound = false;
                     var fullName = user.first_name + " " + user.surname;
@@ -79,7 +105,7 @@ class Users extends Component {
                        first_name: user.first_name, 
                        surname: user.surname, 
                        role: user.role[0], 
-                       last_login: lastLogin
+                       last_login: lastLogin,
                     });   
                 }                              
             }
@@ -129,7 +155,7 @@ class Users extends Component {
                 rows={rows} 
                 columns={columns} 
                 pageSize={10} 
-                checkboxSelection 
+                checkboxSelection
                 onSelectionChange={(newSelection) => { 
                     this.setState({ selectedUsers: newSelection.rowIds });
                 }}
