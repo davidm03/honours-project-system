@@ -18,7 +18,7 @@ import { mainListItems, adminListItems } from './listItems';
 import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute';
 import Users from './Users';
-import Projects from './Projects';
+import AdminProjects from './AdminProjects';
 import ViewUser from './ViewUser';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import Button from '@material-ui/core/Button';
@@ -184,7 +184,7 @@ class Dashboard extends Component {
             <Switch>
               <ProtectedRoute path="/manage/users" component={()=><Users />} admin={true} />
               <ProtectedRoute path="/view/user/:id" component={(props)=><ViewUser {...props} />} admin={true} />
-              <ProtectedRoute path="/manage/projects" component={()=><Projects />} admin={true} />
+              <ProtectedRoute path="/manage/projects" component={()=><AdminProjects />} admin={true} />
             </Switch>
           </Container>
         </main>
