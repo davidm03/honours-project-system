@@ -12,10 +12,12 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import { Redirect } from 'react-router-dom';
 
+import { AddProject, DeleteProjects } from "./manageProjects";
+
 class AdminProjects extends Component {
     constructor(props) {
         super(props);
-        this.state = { projects:[], redirect: null, successMessage: null, errorMessage: null }
+        this.state = { projects:[], redirect: null, successMessage: null, errorMessage: null, selectedProjects: [] }
     }
     loadProjects = () => {
         axios.get(process.env.REACT_APP_SERVER_URL + 'project')
@@ -64,13 +66,10 @@ class AdminProjects extends Component {
 
                 if (this.state.filterText) {
                     var matchFound = false;
-                    if (project.title.indexOf(this.state.filterText) > -1) {
+                    if (project.title.toLowerCase().indexOf(this.state.filterText.toLowerCase()) > -1) {
                         matchFound = true;
                     }
-                    else if (project.description.indexOf(this.state.filterText) > -1) {
-                        matchFound = true;
-                    }
-                    else if (project.topic_area.indexOf(this.state.filterText) > -1) {
+                    else if (project.topic_area.toLowerCase().indexOf(this.state.filterText.toLowerCase()) > -1) {
                         matchFound = true;
                     }
 
@@ -102,21 +101,24 @@ class AdminProjects extends Component {
             <div style={{ paddingBottom: 15 }}>
             <Grid container direction="row">
                 <Grid item xs={3}>
-                    {/* <AddUser loadUsers={this.loadUsers} setSuccess={(message)=>this.setState({successMessage: message})} /> */}
+                    <AddProject 
+                    loadProjects={this.loadProjects} 
+                    setSuccess={(message)=>this.setState({successMessage: message})} 
+                    setError={(message)=>this.setState({errorMessage: message})} />
                     <IconButton onClick={()=>{
                         this.loadProjects();
                         this.setState({ successMessage: "Projects refreshed!" });
                     }}>
                         <RefreshIcon />
                     </IconButton>
-                    {/* {this.state.selectedProjects.length > 0 && (
-                        <DeleteUsers 
-                        loadUsers={this.loadUsers} 
-                        selectedUsers={this.state.selectedUsers} 
+                    {this.state.selectedProjects.length > 0 && (
+                        <DeleteProjects 
+                        loadProjects={this.loadProjects} 
+                        selectedProjects={this.state.selectedProjects} 
                         setSuccess={(message)=>this.setState({successMessage: message})}
-                        clearSelected={()=>this.setState({selectedUsers: []})}
+                        clearSelected={()=>this.setState({selectedProjects: []})}
                         />
-                    )} */}
+                    )}
                 </Grid>
                 <Grid item xs={7}></Grid>
                 <Grid item xs>

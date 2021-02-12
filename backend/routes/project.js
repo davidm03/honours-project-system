@@ -12,8 +12,7 @@ router.get('/', async function(req, res, next) {
 /* POST add a new project */
 router.post('/add', async function(req, res, next) {
   var project = req.body;
-  var supervisor = await userDAL.findUserByUsername(project.supervisor.username);
-  var success = await projectDAL.addProject(project.title, project.description, project.topic_area, supervisor);
+  var success = await projectDAL.addProject(project.title, project.description, project.topic_area);
     if (success===true) {
         res.send(true);
     }
@@ -30,11 +29,14 @@ router.post('/update', async function(req, res, next) {
 
 /* POST delete a project */
 router.post('/delete', async function(req, res, next) {
-    var project = req.body;
-    var success = projectDAL.deleteProject(project.id);
-      if (success===true) {
-          res.send(true);
-      }
+  var projects = req.body.projectIDs;
+  var success = projectDAL.deleteProjects(projects);
+    if (success===true) {
+        res.send(true);
+    }
+    else {
+      res.send(false);
+    }
 });
 
 module.exports = router;

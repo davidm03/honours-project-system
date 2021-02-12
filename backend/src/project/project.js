@@ -1,13 +1,12 @@
 const Project = require('./project.model');
 
-exports.addProject = function (title, description, topic_area, supervisor) {
+exports.addProject = function (title, description, topic_area) {
     return new Promise((resolve, reject) => {
         var newProject = new Project({
             title: title,
             description: description,
             topic_area: topic_area,
             available: true,
-            supervisorID: supervisor.id
         });
         newProject.save(function (err) {
             if (err) {
@@ -70,10 +69,15 @@ exports.updateProject = function(id, update) {
     });
 };
 
-exports.deleteProject = function(id) {
-    Project.findByIdAndDelete(id, function (err, doc) {
-        if (err) {
-            throw (err);
-        }
-    });
-};
+exports.deleteProjects = function(projects) {
+    for (let index = 0; index < projects.length; index++) {
+        const projectID = projects[index];
+
+        Project.findByIdAndDelete(projectID, function (err, doc) {
+            if (err) {
+                return false;
+            }
+        });        
+    }
+    return true;
+}
