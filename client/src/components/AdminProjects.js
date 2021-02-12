@@ -27,6 +27,9 @@ class AdminProjects extends Component {
             }
         });
     }
+    handleViewProjectClick = () => {
+        this.setState({ redirect: "/view/project/" + this.state.selectedProjects.pop() });
+    }
     componentDidMount() {
         this.loadProjects();
     }
@@ -52,6 +55,7 @@ class AdminProjects extends Component {
                       variant="contained"
                       color="primary"
                       size="small"
+                      onClick={this.handleViewProjectClick}
                     >
                       View
                     </Button>

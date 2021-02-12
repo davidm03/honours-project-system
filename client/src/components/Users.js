@@ -63,7 +63,7 @@ class Users extends Component {
                       variant="contained"
                       color="primary"
                       size="small"
-                      onClick={()=>{this.handleViewUserClick()}}
+                      onClick={this.handleViewUserClick}
                     >
                       View
                     </Button>

@@ -39,4 +39,16 @@ router.post('/delete', async function(req, res, next) {
     }
 });
 
+router.get('/view/:id', async function(req, res, next) {
+  var projectID = req.params["id"];
+  var project = await projectDAL.getProject(projectID);
+  if (project) {
+    res.send(project);
+  }
+  else {
+    res.send(false);
+  }
+
+});
+
 module.exports = router;

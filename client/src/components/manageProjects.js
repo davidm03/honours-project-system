@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
-import Button from '@material-ui/core/Button';
 import axios from 'axios';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -10,6 +9,11 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { IconButton } from '@material-ui/core';
+import { Button, Grid } from '@material-ui/core';
+import Snackbar from '@material-ui/core/Snackbar';
+import Alert from '@material-ui/lab/Alert';
+import EditIcon from '@material-ui/icons/Edit';
+import RestoreIcon from '@material-ui/icons/Restore';
 
 class AddProject extends Component {
     constructor(props) {
@@ -154,5 +158,131 @@ class DeleteProjects extends Component {
         );
     }
 }
+
+class ViewProject extends Component {
+    constructor(props) {
+        super(props);
+        this.state = { loading: true, project: null }
+    }
+    loadProjectData = () => {
+        var id = this.props.id;
+        axios.get(process.env.REACT_APP_SERVER_URL + 'project/view/' + id)
+        .then(res => {
+            if (res.data.title) {
+                this.setState({ loading: false, project: res.data, updateButton: false });
+            }
+        });
+    }
+    handleUpdateProject = (e) => {
+        e.preventDefault();
+        var title = document.getElementById('txtTitle').value;
+        var description = document.getElementById('txtDescription').value;
+        var topicArea = document.getElementById('txtTopicArea').value;
+        axios.post(process.env.REACT_APP_SERVER_URL + "project/update", {
+            _id: this.props.id,
+            title: title,
+            description: description,
+            topic_area: topicArea
+        })
+        .then(res => {
+            if (res.data===true) {
+                this.setState({ successMessage: "Project successfully updated.", updateButton: false });
+                this.loadProjectData();
+            }
+        })
+    }
+    revertChanges = () => {
+        document.getElementById('txtTitle').value = this.state.project.title;
+        document.getElementById('txtDescription').value = this.state.project.description;
+        document.getElementById('txtTopicArea').value = this.state.project.topic_area;
+        this.setState({ updateButton: false });      
+    }
+    componentDidMount() {
+        this.loadProjectData();
+    }
+    render() { 
+        if (this.state.loading) {
+            return 'loading';
+        }
+        else {
+            return (
+                <div>
+                    <h1>Project</h1>
+                    <h2>{this.state.project.title}</h2>
+                    <form onSubmit={this.handleUpdateProject}>
+                    <TextField
+                    id="txtTitle"
+                    label="Title"
+                    style={{ margin: 8 }}
+                    defaultValue={this.state.project.title}
+                    fullWidth
+                    margin="normal"
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+                    onChange={()=>{this.setState({ updateButton: true })}}
+                    />
+                    <TextField
+                    id="txtDescription"
+                    label="Description"
+                    style={{ margin: 8 }}
+                    defaultValue={this.state.project.description}
+                    fullWidth
+                    margin="normal"
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+                    onChange={()=>{this.setState({ updateButton: true })}}
+                    />
+                    <TextField
+                    id="txtTopicArea"
+                    label="Topic Area"
+                    style={{ margin: 8 }}
+                    defaultValue={this.state.project.topic_area}
+                    fullWidth
+                    margin="normal"
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+                    onChange={()=>{this.setState({ updateButton: true })}}
+                    />
+                    {this.state.updateButton &&
+                    <Grid container direction="row">
+                    <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<RestoreIcon />}
+                    style={{ margin: 8 }}
+                    onClick={this.revertChanges}
+                    >
+                    Revert Changes
+                    </Button> 
+                    <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<EditIcon />}
+                    type="submit"
+                    style={{ margin: 8 }}
+                    >
+                    Update
+                    </Button>
+                    </Grid>
+                    }                  
+                    </form>
+                    <Snackbar open={this.state.successMessage} autoHideDuration={6000} onClose={()=>{this.setState({ successMessage: null });}}>
+                        <Alert onClose={()=>{this.setState({ successMessage: null });}} severity="success">
+                        {this.state.successMessage}
+                        </Alert>
+                    </Snackbar>
+                    <Snackbar open={this.state.errorMessage} autoHideDuration={6000} onClose={()=>{this.setState({ errorMessage: null });}}>
+                        <Alert onClose={()=>{this.setState({ errorMessage: null });}} severity="error">
+                        {this.state.errorMessage}
+                        </Alert>
+                    </Snackbar>
+                </div>
+            );
+        }
+    }
+}
  
-export { AddProject, DeleteProjects };
+export { AddProject, DeleteProjects, ViewProject };
