@@ -14,12 +14,16 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import EditIcon from '@material-ui/icons/Edit';
 import RestoreIcon from '@material-ui/icons/Restore';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import InputLabel from '@material-ui/core/InputLabel';
 
 class AddProject extends Component {
     constructor(props) {
         super(props);
         this.state = { 
-            addProjectDialog: false
+            addProjectDialog: false,
+            selectedAvailability: "Yes"
          }
     }
     handleAddNewProject = (event) => {
@@ -27,11 +31,23 @@ class AddProject extends Component {
         var title = document.getElementById('addProjectTitle').value;
         var description = document.getElementById('addProjectDescription').value;
         var topic_area = document.getElementById('addProjectTopicArea').value;
+        var available = true;
+        var status;
+        var studentID;
+        var supervisorID = this.state.selectedSupervisor;
+
+        if (this.state.selectedAvailability==="No") available = false;
+        if (document.getElementById('addProjectStatus').value!==null) status = document.getElementById('addProjectStatus').value;
+        if (document.getElementById('addProjectStudentID').value!==null) studentID = document.getElementById('addProjectStudentID').value;
         
         axios.post(process.env.REACT_APP_SERVER_URL + "project/add", {
             title: title,
             description: description,
-            topic_area: topic_area
+            topic_area: topic_area,
+            available: available,
+            status: status,
+            studentID: studentID,
+            supervisorID: supervisorID
         })
         .then(res => {
             if (res.data===true) {
@@ -48,7 +64,10 @@ class AddProject extends Component {
         var dialog = this.state.addProjectDialog;
         this.setState({ addProjectDialog: !dialog }); 
     }
-    render() { 
+    render() {
+            const menuItems = this.props.supervisors.map(s => (
+                <MenuItem value={s._id}>{s.first_name} {s.surname}</MenuItem>
+            ));
         return ( 
             <>
                     <Button
@@ -64,7 +83,7 @@ class AddProject extends Component {
                         <form onSubmit={this.handleAddNewProject}>
                         <DialogContent>
                         <DialogContentText>
-                            Enter the details of the new project you wish to add to the system.
+                            Enter the details of the new project you wish to add to the system
                         </DialogContentText>
                         <TextField
                             autoFocus
@@ -79,6 +98,8 @@ class AddProject extends Component {
                             id="addProjectDescription"
                             label="Description"
                             fullWidth
+                            multiline
+                            rows={3}
                             required
                         /> 
                         <TextField
@@ -87,7 +108,40 @@ class AddProject extends Component {
                             label="Topic Area"
                             fullWidth
                             required
-                        />        
+                        />
+                        <div style={{ marginTop: 8 }}>
+                            <InputLabel shrink>Available (for selection)</InputLabel>
+                            <Select
+                            id="selectAvailability"
+                            value={this.state.selectedAvailability}
+                            onChange={(e)=>{this.setState({ selectedAvailability: e.target.value })}}
+                            >
+                            <MenuItem value={"Yes"}>Yes</MenuItem>
+                            <MenuItem value={"No"}>No</MenuItem>
+                            </Select>
+                        </div>
+                        <TextField
+                            margin="dense"
+                            id="addProjectStatus"
+                            label="Status (leave blank if new project)"
+                            fullWidth
+                        />
+                        <div style={{ marginTop: 8 }}>
+                            <InputLabel shrink>Supervisor</InputLabel>
+                            <Select
+                            id="selectSupervisor"
+                            onChange={(e)=>{this.setState({ selectedSupervisor: e.target.value })}}
+                            fullWidth
+                            >
+                            {menuItems}
+                            </Select>
+                        </div> 
+                        <TextField
+                            margin="dense"
+                            id="addProjectStudentID"
+                            label="Student ID (Leave blank if new project)"
+                            fullWidth
+                        />       
                         </DialogContent>
                         <DialogActions>
                         <Button onClick={this.toggleAddProjectDialog} color="primary">

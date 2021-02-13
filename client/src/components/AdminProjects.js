@@ -17,7 +17,7 @@ import { AddProject, DeleteProjects } from "./manageProjects";
 class AdminProjects extends Component {
     constructor(props) {
         super(props);
-        this.state = { projects:[], redirect: null, successMessage: null, errorMessage: null, selectedProjects: [] }
+        this.state = { projects:[], redirect: null, successMessage: null, errorMessage: null, selectedProjects: [], supervisors: [] }
     }
     loadProjects = () => {
         axios.get(process.env.REACT_APP_SERVER_URL + 'project')
@@ -27,11 +27,20 @@ class AdminProjects extends Component {
             }
         });
     }
+    loadSupervisors = () => {
+        axios.get(process.env.REACT_APP_SERVER_URL + 'users/supervisors')
+        .then(res => {
+            if (res.data.length>0) {
+                this.setState({ supervisors: res.data });
+            }
+        });
+    }
     handleViewProjectClick = () => {
         this.setState({ redirect: "/view/project/" + this.state.selectedProjects.pop() });
     }
     componentDidMount() {
         this.loadProjects();
+        this.loadSupervisors();
     }
     render() {
         if (this.state.redirect) {
@@ -108,7 +117,8 @@ class AdminProjects extends Component {
                     <AddProject 
                     loadProjects={this.loadProjects} 
                     setSuccess={(message)=>this.setState({successMessage: message})} 
-                    setError={(message)=>this.setState({errorMessage: message})} />
+                    setError={(message)=>this.setState({errorMessage: message})} 
+                    supervisors={this.state.supervisors} />
                     <IconButton onClick={()=>{
                         this.loadProjects();
                         this.setState({ successMessage: "Projects refreshed!" });

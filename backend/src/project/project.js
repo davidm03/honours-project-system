@@ -1,12 +1,15 @@
 const Project = require('./project.model');
 
-exports.addProject = function (title, description, topic_area) {
+exports.addProject = function (title, description, topic_area, available, status, studentID, supervisorID) {
     return new Promise((resolve, reject) => {
         var newProject = new Project({
             title: title,
             description: description,
             topic_area: topic_area,
-            available: true,
+            available: available,
+            status: status,
+            studentID: studentID,
+            supervisorID
         });
         newProject.save(function (err) {
             if (err) {

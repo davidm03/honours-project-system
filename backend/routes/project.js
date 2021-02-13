@@ -12,7 +12,7 @@ router.get('/', async function(req, res, next) {
 /* POST add a new project */
 router.post('/add', async function(req, res, next) {
   var project = req.body;
-  var success = await projectDAL.addProject(project.title, project.description, project.topic_area);
+  var success = await projectDAL.addProject(project.title, project.description, project.topic_area, project.available, project.status, project.studentID, project.supervisorID);
     if (success===true) {
         res.send(true);
     }

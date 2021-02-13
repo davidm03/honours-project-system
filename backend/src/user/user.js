@@ -48,6 +48,28 @@ exports.getAllUsers = function () {
     })
 }
 
+exports.getSupervisors = function () {
+    return new Promise((resolve, reject) => {
+        User.find({}, function (err, users) {
+            if (err) {
+                reject(err);
+                console.log('Error: Unable to resolve all supervisors.');
+            }
+            else {
+                var supervisors = [];
+                for (let index = 0; index < users.length; index++) {
+                    const user = users[index];
+                    if (user.role.includes("SUPERVISOR")) {
+                        supervisors.push(user);
+                    }
+                }
+                resolve(supervisors);
+                console.log('Success: All supervisors resolved.');
+            }
+        });
+    })
+}
+
 exports.authenticateUser = function (email, password) {
     return new Promise((resolve, reject) => {
         User.findOne({ email: email }, function (err, user) {

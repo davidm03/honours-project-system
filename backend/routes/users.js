@@ -8,6 +8,12 @@ router.get('/', async function(req, res, next) {
   res.send(users);
 });
 
+/* GET supervisors listing. */
+router.get('/supervisors', async function(req, res, next) {
+  var users = await userDAL.getSupervisors();
+  res.send(users);
+});
+
 /* POST register new user account */
 router.post('/register', async function(req, res, next) {
   var user = req.body;
