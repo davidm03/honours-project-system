@@ -12,10 +12,17 @@ router.get('/', async function(req, res, next) {
 /* POST add a new project */
 router.post('/add', async function(req, res, next) {
   var project = req.body;
-  var success = await projectDAL.addProject(project.title, project.description, project.topic_area, project.available, project.status, project.studentID, project.supervisorID);
+  var student = await userDAL.getStudentByStudentId(project.studentID);
+  if (student!=null) {
+    var success = await projectDAL.addProject(project.title, project.description, project.topic_area, project.available, project.status, student._id, project.supervisorID);
     if (success===true) {
         res.send(true);
     }
+  }
+  else {
+    res.send({error: "student", message: "Student ID does not exist."})
+  }
+  
 });
 
 /* POST update a project */

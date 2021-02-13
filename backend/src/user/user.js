@@ -33,6 +33,20 @@ exports.findUserById = function (id) {
     });
 }
 
+exports.getStudentByStudentId = function (id) {
+    return new Promise((resolve, reject) => {
+        User.findOne({ studentID: id }, function (err, user) {
+            if (err) {
+                console.log('An error has been encounted');
+                reject(err);
+            }
+            resolve(user);
+        }).catch(function (err) {
+            throw (err)
+        });
+    });
+}
+
 exports.getAllUsers = function () {
     return new Promise((resolve, reject) => {
         User.find({}, function (err, users) {

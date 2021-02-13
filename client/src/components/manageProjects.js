@@ -55,6 +55,9 @@ class AddProject extends Component {
                 this.toggleAddProjectDialog();
                 this.props.setSuccess("Project successfully added.");
             }
+            else if (res.data.error) {
+                this.setState({ errorStudent: res.data.message });
+            }
             else {
                 this.props.setError("Error: Project could not be added.");
             }
@@ -141,6 +144,8 @@ class AddProject extends Component {
                             id="addProjectStudentID"
                             label="Student ID (Leave blank if new project)"
                             fullWidth
+                            error={this.state.errorStudent}
+                            helperText={this.state.errorStudent}
                         />       
                         </DialogContent>
                         <DialogActions>
@@ -216,7 +221,7 @@ class DeleteProjects extends Component {
 class ViewProject extends Component {
     constructor(props) {
         super(props);
-        this.state = { loading: true, project: null }
+        this.state = { loading: true, project: null, selectedSupervisor: null }
     }
     loadProjectData = () => {
         var id = this.props.id;
