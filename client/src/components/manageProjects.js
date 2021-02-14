@@ -18,6 +18,9 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
 
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 class AddProject extends Component {
     constructor(props) {
         super(props);
@@ -228,7 +231,36 @@ class ViewProject extends Component {
         axios.get(process.env.REACT_APP_SERVER_URL + 'project/view/' + id)
         .then(res => {
             if (res.data.title) {
-                this.setState({ loading: false, project: res.data, updateButton: false });
+                var project = res.data;
+                var available = "Yes";
+                if (res.data.available===false) available = "No";
+                axios.get(process.env.REACT_APP_SERVER_URL + 'users/view/' + res.data.studentID)
+                .then(res => {
+                    var studentID = "";
+                    if (res.data._id) {
+                        studentID = res.data.studentID;                       
+                    } 
+                    axios.get(process.env.REACT_APP_SERVER_URL + 'users/supervisors')
+                    .then(res => {
+                        var supervisors = [];
+                        var selectedSupervisor = null;
+                        if (res.data.length>0) {
+                            supervisors = res.data;
+                            selectedSupervisor = supervisors.find(supervisor => supervisor._id === project.supervisorID); 
+                            
+                            this.setState({ 
+                                loading: false, 
+                                project: project, 
+                                updateButton: false, 
+                                selectedAvailability: available, 
+                                studentID: studentID,
+                                supervisors: supervisors,
+                                selectedSupervisor: selectedSupervisor._id
+                            });  
+                        }
+                    }) 
+                                     
+                })                
             }
         });
     }
@@ -237,33 +269,52 @@ class ViewProject extends Component {
         var title = document.getElementById('txtTitle').value;
         var description = document.getElementById('txtDescription').value;
         var topicArea = document.getElementById('txtTopicArea').value;
+        var available = true;
+        var status = document.getElementById('txtStatus').value;
+        var studentID = document.getElementById('txtStudentID').value;
+        var supervisorID = this.state.selectedSupervisor;
+
+        if (this.state.selectedAvailability==="No") available = false;
+
         axios.post(process.env.REACT_APP_SERVER_URL + "project/update", {
             _id: this.props.id,
-            title: title,
-            description: description,
-            topic_area: topicArea
+            title,
+            description,
+            topic_area: topicArea,
+            available,
+            status,
+            studentID,
+            supervisorID
         })
         .then(res => {
             if (res.data===true) {
                 this.setState({ successMessage: "Project successfully updated.", updateButton: false });
                 this.loadProjectData();
             }
+            else if (res.data.error) {
+                this.setState({ errorStudent: res.data.message });
+            }
         })
     }
     revertChanges = () => {
-        document.getElementById('txtTitle').value = this.state.project.title;
-        document.getElementById('txtDescription').value = this.state.project.description;
-        document.getElementById('txtTopicArea').value = this.state.project.topic_area;
-        this.setState({ updateButton: false });      
+        this.setState({ loading: true });
+        this.loadProjectData();      
     }
     componentDidMount() {
         this.loadProjectData();
     }
     render() { 
         if (this.state.loading) {
-            return 'loading';
+            return (
+            <Backdrop open={true}>
+                <CircularProgress color="inherit" />
+            </Backdrop>
+            );
         }
         else {
+            const menuItems = this.state.supervisors.map(s => (
+                <MenuItem value={s._id}>{s.first_name} {s.surname}</MenuItem>
+            ));
             return (
                 <div>
                     <h1>Project</h1>
@@ -287,6 +338,8 @@ class ViewProject extends Component {
                     style={{ margin: 8 }}
                     defaultValue={this.state.project.description}
                     fullWidth
+                    multiline
+                    rows={3}
                     margin="normal"
                     InputLabelProps={{
                         shrink: true,
@@ -305,6 +358,53 @@ class ViewProject extends Component {
                     }}
                     onChange={()=>{this.setState({ updateButton: true })}}
                     />
+                    <div style={{ margin: 8 }}>
+                        <InputLabel shrink>Available (for selection)</InputLabel>
+                        <Select
+                        id="selectAvailability"
+                        value={this.state.selectedAvailability}
+                        onChange={(e)=>{this.setState({ selectedAvailability: e.target.value, updateButton: true })}}
+                        >
+                        <MenuItem value={"Yes"}>Yes</MenuItem>
+                        <MenuItem value={"No"}>No</MenuItem>
+                        </Select>
+                    </div>
+                    <TextField
+                    id="txtStatus"
+                    label="Project Status"
+                    style={{ margin: 8 }}
+                    defaultValue={this.state.project.status}
+                    fullWidth
+                    margin="normal"
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+                    onChange={()=>{this.setState({ updateButton: true })}}
+                    />
+                    <TextField
+                    id="txtStudentID"
+                    label="Student ID"
+                    style={{ margin: 8 }}
+                    defaultValue={this.state.studentID}
+                    fullWidth
+                    margin="normal"
+                    error = {this.state.errorStudent}
+                    helperText = {this.state.errorStudent}
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+                    onChange={()=>{this.setState({ updateButton: true })}}
+                    />
+                    <div style={{ margin: 8 }}>
+                        <InputLabel shrink>Supervisor</InputLabel>
+                        <Select
+                        id="selectSupervisor"
+                        value={this.state.selectedSupervisor}
+                        onChange={(e)=>{this.setState({ selectedSupervisor: e.target.value, updateButton: true })}}
+                        >
+                        {menuItems}
+                        </Select>
+                    </div>
                     {this.state.updateButton &&
                     <Grid container direction="row">
                     <Button

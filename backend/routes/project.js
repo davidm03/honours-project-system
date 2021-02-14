@@ -28,10 +28,18 @@ router.post('/add', async function(req, res, next) {
 /* POST update a project */
 router.post('/update', async function(req, res, next) {
     var updatedProject = req.body;
-    var success = await projectDAL.updateProject(updatedProject._id, updatedProject);
+    var student = await userDAL.getStudentByStudentId(updatedProject.studentID);
+    if (student!=null) {
+      updatedProject.studentID = student._id;
+      var success = await projectDAL.updateProject(updatedProject._id, updatedProject);
       if (success===true) {
           res.send(true);
       }
+    }
+    else {
+      res.send({error: "Student", message: "Student ID does not exist."});
+    }
+    
 });
 
 /* POST delete a project */

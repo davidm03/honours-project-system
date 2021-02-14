@@ -12,6 +12,9 @@ import Alert from '@material-ui/lab/Alert';
 import EditIcon from '@material-ui/icons/Edit';
 import RestoreIcon from '@material-ui/icons/Restore';
 
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 class ViewUser extends Component {
     constructor(props) {
         super(props);
@@ -58,24 +61,19 @@ class ViewUser extends Component {
         })
     }
     revertChanges = () => {
-        document.getElementById('txtEmail').value = this.state.user.email;
-        document.getElementById('txtFirstName').value = this.state.user.first_name;
-        document.getElementById('txtSurname').value = this.state.user.surname;
-        this.state.selectedRole = this.state.user.role[0];
-        if (this.state.user.role.includes("STUDENT")) {
-           document.getElementById('txtStudentID').value = this.state.user.studentID; 
-        }
-        else {
-           document.getElementById('txtTopicArea').value = this.state.user.topic_area; 
-        }
-        this.setState({ updateButton: false });      
+        this.setState({ loading: true });
+        this.loadUserData();      
     }
     componentDidMount() {
         this.loadUserData();
     }
     render() { 
         if (this.state.loading) {
-            return 'loading';
+            return (
+                <Backdrop open={true}>
+                    <CircularProgress color="inherit" />
+                </Backdrop>
+            );
         }
         else {
             return (
