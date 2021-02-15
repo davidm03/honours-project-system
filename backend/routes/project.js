@@ -12,29 +12,58 @@ router.get('/', async function(req, res, next) {
 /* POST add a new project */
 router.post('/add', async function(req, res, next) {
   var project = req.body;
-  var supervisor = await userDAL.findUserByUsername(project.supervisor.username);
-  var success = await projectDAL.addProject(project.title, project.description, project.topic_area, supervisor);
+  var student = await userDAL.getStudentByStudentId(project.studentID);
+  if (student!=null) {
+    var success = await projectDAL.addProject(project.title, project.description, project.topic_area, project.available, project.status, student._id, project.supervisorID);
     if (success===true) {
         res.send(true);
     }
+  }
+  else {
+    res.send({error: "student", message: "Student ID does not exist."})
+  }
+  
 });
 
 /* POST update a project */
 router.post('/update', async function(req, res, next) {
     var updatedProject = req.body;
-    var success = await projectDAL.updateProject(updatedProject._id, updatedProject);
+    var student = await userDAL.getStudentByStudentId(updatedProject.studentID);
+    if (student!=null) {
+      updatedProject.studentID = student._id;
+      var success = await projectDAL.updateProject(updatedProject._id, updatedProject);
       if (success===true) {
           res.send(true);
       }
+    }
+    else {
+      res.send({error: "Student", message: "Student ID does not exist."});
+    }
+    
 });
 
 /* POST delete a project */
 router.post('/delete', async function(req, res, next) {
-    var project = req.body;
-    var success = projectDAL.deleteProject(project.id);
-      if (success===true) {
-          res.send(true);
-      }
+  var projects = req.body.projectIDs;
+  var success = projectDAL.deleteProjects(projects);
+    if (success===true) {
+        res.send(true);
+    }
+    else {
+      res.send(false);
+    }
+});
+
+router.get('/view/:id', async function(req, res, next) {
+  var projectID = req.params["id"];
+  var project = await projectDAL.getProject(projectID);
+  if (project) {
+    res.send(project);
+  }
+  else {
+    res.send(false);
+  }
+
 });
 
 module.exports = router;

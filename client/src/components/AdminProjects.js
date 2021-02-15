@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { DataGrid } from '@material-ui/data-grid';
 import axios from 'axios';
-import { AddUser, DeleteUsers } from "./manageUsers";
 
 import SearchIcon from '@material-ui/icons/Search';
 import TextField from '@material-ui/core/TextField';
@@ -9,50 +7,53 @@ import Grid from '@material-ui/core/Grid';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import { Button, IconButton } from '@material-ui/core';
 import RefreshIcon from '@material-ui/icons/Refresh';
-
+import { DataGrid } from '@material-ui/data-grid';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import { Redirect } from 'react-router-dom';
 
-class Users extends Component {
+import { AddProject, DeleteProjects } from "./manageProjects";
+
+class AdminProjects extends Component {
     constructor(props) {
         super(props);
-        this.state = { 
-            users:[], 
-            selectedUsers: [],
-            redirect: null
-        }
+        this.state = { projects:[], redirect: null, successMessage: null, errorMessage: null, selectedProjects: [], supervisors: [] }
     }
-    loadUsers = () => {
-        axios.get(process.env.REACT_APP_SERVER_URL + 'users')
+    loadProjects = () => {
+        axios.get(process.env.REACT_APP_SERVER_URL + 'project')
         .then(res => {
             if (res.data) {
-                this.setState({ users: res.data });
+                this.setState({ projects: res.data });
             }
         });
     }
-    handleUserFilter = (event) => {
-        this.setState({ filterText: event.target.value });
+    loadSupervisors = () => {
+        axios.get(process.env.REACT_APP_SERVER_URL + 'users/supervisors')
+        .then(res => {
+            if (res.data.length>0) {
+                this.setState({ supervisors: res.data });
+            }
+        });
     }
-    handleViewUserClick = () => {
-        this.setState({ redirect: "/view/user/" + this.state.selectedUsers.pop() });
+    handleViewProjectClick = () => {
+        this.setState({ redirect: "/view/project/" + this.state.selectedProjects.pop() });
     }
     componentDidMount() {
-        this.loadUsers();
+        this.loadProjects();
+        this.loadSupervisors();
     }
     render() {
         if (this.state.redirect) {
             return <Redirect to={this.state.redirect} />
         }
 
-        var users = this.state.users;
+        var projects = this.state.projects;
         const columns = [
-            {field: 'id', headerName: 'ID', width: 250},
-            {field: 'first_name', headerName: 'First Name', width: 150},
-            {field: 'surname', headerName: 'Surname', width: 150},
-            {field: 'email', headerName: 'Email', width: 170},
-            {field: 'role', headerName: 'Role', width: 150},
-            {field: 'last_login', headerName: 'Last Login', width: 150},
+            {field: 'id', headerName: 'ID', width: 230},
+            {field: 'title', headerName: 'Title', width: 220},
+            {field: 'topic_area', headerName: 'Topic Area', width: 200},
+            {field: 'available', headerName: 'Available', width: 150},
+            {field: 'supervisorID', headerName: 'Supervisor', width: 220},
             {
                 field: "actions",
                 headerName: 'Actions',
@@ -63,7 +64,7 @@ class Users extends Component {
                       variant="contained"
                       color="primary"
                       size="small"
-                      onClick={this.handleViewUserClick}
+                      onClick={this.handleViewProjectClick}
                     >
                       View
                     </Button>
@@ -72,64 +73,64 @@ class Users extends Component {
             }
         ];
         const rows = [];
-        if (users.length>0) {
-            for (let index = 0; index < users.length; index++) {
-                const user = users[index];
-                var lastLogin = new Date(user.last_login * 1000).toLocaleDateString('en-GB');
+        if (projects.length>0) {
+            for (let index = 0; index < projects.length; index++) {
+                const project = projects[index];
 
                 if (this.state.filterText) {
                     var matchFound = false;
-                    var fullName = user.first_name + " " + user.surname;
-                    if (user.email.indexOf(this.state.filterText) > -1) {
+                    if (project.title.toLowerCase().indexOf(this.state.filterText.toLowerCase()) > -1) {
                         matchFound = true;
                     }
-                    else if (fullName.indexOf(this.state.filterText) > -1) {
+                    else if (project.topic_area.toLowerCase().indexOf(this.state.filterText.toLowerCase()) > -1) {
                         matchFound = true;
                     }
 
                     if (matchFound) {
                         rows.push({ 
-                            id: user._id, 
-                            email: user.email, 
-                            first_name: user.first_name, 
-                            surname: user.surname, 
-                            role: user.role[0] ,
-                            last_login: lastLogin
+                            id: project._id, 
+                            title: project.title,
+                            topic_area: project.topic_area,
+                            available: project.available,
+                            supervisorID: project.supervisorID
                         }); 
                     }
                 }
                 else {
-                   rows.push({ 
-                       id: user._id, 
-                       email: user.email, 
-                       first_name: user.first_name, 
-                       surname: user.surname, 
-                       role: user.role[0], 
-                       last_login: lastLogin,
-                    });   
+                    rows.push({ 
+                        id: project._id, 
+                        title: project.title,
+                        topic_area: project.topic_area,
+                        available: project.available,
+                        supervisorID: project.supervisorID
+                    }); 
                 }                              
             }
-        }
+        } 
         return ( 
-        <>
-            <h1>Manage Users</h1>
-            <p>View all application users below, and perform actions such as updating or deleting user accounts.</p>
+        <div>
+            <h1>Manage Projects</h1>
+            <p>View or manage all of the pre-defined projects that students can browse and select from and ongoing student projects. Add, view, update and delete projects from here. </p>
             <div style={{ paddingBottom: 15 }}>
             <Grid container direction="row">
                 <Grid item xs={3}>
-                    <AddUser loadUsers={this.loadUsers} setSuccess={(message)=>this.setState({successMessage: message})} />
+                    <AddProject 
+                    loadProjects={this.loadProjects} 
+                    setSuccess={(message)=>this.setState({successMessage: message})} 
+                    setError={(message)=>this.setState({errorMessage: message})} 
+                    supervisors={this.state.supervisors} />
                     <IconButton onClick={()=>{
-                        this.loadUsers();
-                        this.setState({ successMessage: "Users refreshed!" });
+                        this.loadProjects();
+                        this.setState({ successMessage: "Projects refreshed!" });
                     }}>
                         <RefreshIcon />
                     </IconButton>
-                    {this.state.selectedUsers.length > 0 && (
-                        <DeleteUsers 
-                        loadUsers={this.loadUsers} 
-                        selectedUsers={this.state.selectedUsers} 
+                    {this.state.selectedProjects.length > 0 && (
+                        <DeleteProjects 
+                        loadProjects={this.loadProjects} 
+                        selectedProjects={this.state.selectedProjects} 
                         setSuccess={(message)=>this.setState({successMessage: message})}
-                        clearSelected={()=>this.setState({selectedUsers: []})}
+                        clearSelected={()=>this.setState({selectedProjects: []})}
                         />
                     )}
                 </Grid>
@@ -137,7 +138,7 @@ class Users extends Component {
                 <Grid item xs>
                     <TextField
                     id="input-with-icon-textfield"
-                    label="Search by name, email or ID"
+                    label="Search by title, desc or topic"
                     InputProps={{
                     startAdornment: (
                         <InputAdornment position="start">
@@ -157,7 +158,7 @@ class Users extends Component {
                 pageSize={10} 
                 checkboxSelection
                 onSelectionChange={(newSelection) => { 
-                    this.setState({ selectedUsers: newSelection.rowIds });
+                    this.setState({ selectedProjects: newSelection.rowIds });
                 }}
                 />
             </div>
@@ -171,9 +172,9 @@ class Users extends Component {
                 {this.state.errorMessage}
                 </Alert>
             </Snackbar>
-        </> 
+        </div> 
         );
     }
 }
  
-export default Users;
+export default AdminProjects;

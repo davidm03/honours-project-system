@@ -41,10 +41,10 @@ class Login extends Component {
     }
     handleLogin = (e) => {
         e.preventDefault();
-        var username = document.getElementById('username').value;
+        var email = document.getElementById('email').value;
         var password = document.getElementById('password').value;
         axios.post(process.env.REACT_APP_SERVER_URL + 'auth/login', {
-            username: username,
+            email: email,
             password: password
         })
         .then(res => {
@@ -53,8 +53,8 @@ class Login extends Component {
               this.setState({redirect:"/"});
             }
             else{
-                if (res.data.error==="username") {
-                    this.setState({usernameError: res.data.message});
+                if (res.data.error==="email") {
+                    this.setState({emailError: res.data.message});
                 }
                 else{
                     this.setState({passwordError: res.data.message});
@@ -83,13 +83,13 @@ class Login extends Component {
                 variant="outlined"
                 margin="normal"
                 required
-                error={this.state.usernameError}
-                helperText={this.state.usernameError}
+                error={this.state.emailError}
+                helperText={this.state.emailError}
                 fullWidth
-                id="username"
-                label="Username"
-                name="username"
-                autoComplete="username"
+                id="email"
+                label="Email"
+                name="email"
+                autoComplete="email"
                 autoFocus
               />
               <TextField
