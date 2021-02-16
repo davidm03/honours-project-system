@@ -41,7 +41,7 @@ class AddProject extends Component {
 
         if (this.state.selectedAvailability==="No") available = false;
         if (document.getElementById('addProjectStatus').value!==null) status = document.getElementById('addProjectStatus').value;
-        if (document.getElementById('addProjectStudentID').value!==null) studentID = document.getElementById('addProjectStudentID').value;
+        if (document.getElementById('addProjectStudentID').value!=="") studentID = document.getElementById('addProjectStudentID').value;
         
         axios.post(process.env.REACT_APP_SERVER_URL + "project/add", {
             title: title,
