@@ -19,12 +19,12 @@ export const mainListItems = (
       <ListItemText primary="Home" />
     </ListItem>
     </Link>
-    <Link to="/users" style={{textDecoration: 'none', color: 'black'}}>
+    <Link to="/projects" style={{textDecoration: 'none', color: 'black'}}>
     <ListItem button>
       <ListItemIcon>
-        <PeopleIcon />
+        <FolderIcon />
       </ListItemIcon>
-      <ListItemText primary="Users" />
+      <ListItemText primary="Honours Projects" />
     </ListItem>
     </Link>
     <Link to="/projects" style={{textDecoration: 'none', color: 'black'}}>
@@ -32,15 +32,9 @@ export const mainListItems = (
       <ListItemIcon>
         <FolderIcon />
       </ListItemIcon>
-      <ListItemText primary="Projects" />
+      <ListItemText primary="My Project" />
     </ListItem>
     </Link>
-    <ListItem button>
-      <ListItemIcon>
-        <BarChartIcon />
-      </ListItemIcon>
-      <ListItemText primary="Reports" />
-    </ListItem>
   </div>
 );
 

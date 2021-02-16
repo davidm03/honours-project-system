@@ -24,6 +24,8 @@ import { ViewProject } from './manageProjects';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import Button from '@material-ui/core/Button';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import Projects from './Projects';
+import axios from 'axios';
 
 const drawerWidth = 240;
 
@@ -109,11 +111,22 @@ const useStyles = theme => ({
 class Dashboard extends Component {
   constructor(props){
     super(props);
-    this.state = { open: true, redirect: null };
+    this.state = { open: true, redirect: null, allProjects: [] };
   }
   handleLogout = () => {
     localStorage.removeItem('access-token');
     this.setState({ redirect: "/login" });
+  }
+  loadProjects = () => {
+    axios.get(process.env.REACT_APP_SERVER_URL + 'project')
+    .then(res => {
+        if (res.data) {
+            this.setState({ allProjects: res.data });
+        }
+    });
+  }
+  componentDidMount() {
+    this.loadProjects();
   }
   render() {
   if (this.state.redirect) {
@@ -187,6 +200,7 @@ class Dashboard extends Component {
               <ProtectedRoute path="/view/user/:id" component={(props)=><ViewUser {...props} />} admin={true} />
               <ProtectedRoute path="/manage/projects" component={()=><AdminProjects />} admin={true} />
               <ProtectedRoute path="/view/project/:id" component={(props)=><ViewProject {...props} />} admin={true} />
+              <ProtectedRoute path="/projects" component={()=><Projects projects={this.state.allProjects}/>} />
             </Switch>
           </Container>
         </main>
