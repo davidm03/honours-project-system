@@ -26,6 +26,7 @@ import Button from '@material-ui/core/Button';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import Projects from './Projects';
 import axios from 'axios';
+import ExpandProject from './ExpandProject';
 
 const drawerWidth = 240;
 
@@ -201,7 +202,7 @@ class Dashboard extends Component {
               <ProtectedRoute path="/manage/projects" component={()=><AdminProjects />} admin={true} />
               <ProtectedRoute path="/view/project/:id" component={(props)=><ViewProject {...props} />} admin={true} />
               <ProtectedRoute path="/projects" component={()=><Projects projects={this.state.allProjects}/>} />
-              <ProtectedRoute path="/project/" component={()=><Projects projects={this.state.allProjects}/>} />
+              <ProtectedRoute path="/project/:id" component={(props)=><ExpandProject {...props} user={this.props.user}/>} />
             </Switch>
           </Container>
         </main>

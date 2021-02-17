@@ -14,11 +14,12 @@ import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';
 import IconButton from '@material-ui/core/IconButton';
 import { Grid } from '@material-ui/core';
+import { Redirect } from 'react-router-dom';
 
 class Projects extends Component {
     constructor(props) {
         super(props);
-        this.state = { supervisors:[], searchText: "" }
+        this.state = { supervisors:[], searchText: "", redirect: null }
     }
     loadSupervisors = () => {
         axios.get(process.env.REACT_APP_SERVER_URL + 'users/supervisors')
@@ -36,6 +37,9 @@ class Projects extends Component {
         this.loadSupervisors();
     }
     render() { 
+        if (this.state.redirect) {
+            return <Redirect to={this.state.redirect} />
+        }
         const projects = this.props.projects;
         const supervisors = this.state.supervisors;
         var projectDisplay = [];
@@ -69,7 +73,13 @@ class Projects extends Component {
                             </p>
                             </CardContent>
                             <CardActions>
-                                <Button size="small" color="primary">View Project</Button>
+                                <Button 
+                                size="small" 
+                                color="primary"
+                                onClick={() => {this.setState({ redirect: "project/" + p._id })}}
+                                >
+                                    View Project
+                                </Button>
                             </CardActions>
                             </Card>
                         ); 
@@ -87,7 +97,13 @@ class Projects extends Component {
                         </p>
                         </CardContent>
                         <CardActions>
-                            <Button size="small" color="primary">View Project</Button>
+                            <Button 
+                                size="small" 
+                                color="primary"
+                                onClick={() => {this.setState({ redirect: "project/" + p._id })}}
+                            >
+                                View Project
+                            </Button>
                         </CardActions>
                         </Card>
                     );
