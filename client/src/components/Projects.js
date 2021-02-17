@@ -7,10 +7,18 @@ import CardActions from '@material-ui/core/CardActions';
 
 import axios from 'axios';
 
+import TextField from '@material-ui/core/TextField';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import SearchIcon from '@material-ui/icons/Search';
+import Paper from '@material-ui/core/Paper';
+import InputBase from '@material-ui/core/InputBase';
+import IconButton from '@material-ui/core/IconButton';
+import { Grid } from '@material-ui/core';
+
 class Projects extends Component {
     constructor(props) {
         super(props);
-        this.state = { supervisors:[] }
+        this.state = { supervisors:[], searchText: "" }
     }
     loadSupervisors = () => {
         axios.get(process.env.REACT_APP_SERVER_URL + 'users/supervisors')
@@ -20,9 +28,9 @@ class Projects extends Component {
             }
         });
     }
-    getSupervisorName = (id) => {
-        var match = this.state.supervisors.find(s => s._id===id);
-        console.log(match);
+    handleSearch = (e) => {
+        e.preventDefault();
+        this.setState({ searchText: document.getElementById('txtSearch').value });
     }
     componentDidMount() {
         this.loadSupervisors();
@@ -31,27 +39,59 @@ class Projects extends Component {
         const projects = this.props.projects;
         const supervisors = this.state.supervisors;
         var projectDisplay = [];
-        
+
         if (supervisors.length > 0 && projects.length > 0) {    
             for (let index = 0; index < projects.length; index++) {
                 const p = projects[index];
-                var supervisor = this.state.supervisors.find(s => s._id===p.supervisorID);
+                var supervisor = this.state.supervisors.find(s => s._id === p.supervisorID);
 
-                projectDisplay.push(
-                    <Card style={{ marginBottom: 15 }}>
-                    <CardContent>
-                    <h3>{p.title}</h3>
-                    <p>{p.description}</p>
-                    <p>
-                        Topic Area: {p.topic_area} <br/>
-                        Supervisor: {supervisor.first_name} {supervisor.surname}
-                    </p>
-                    </CardContent>
-                    <CardActions>
-                        <Button size="small" color="primary">View Project</Button>
-                    </CardActions>
-                    </Card>
-                );
+                if (this.state.searchText) {
+                    var match = false;
+                    if (p.title.toLowerCase().indexOf(this.state.searchText.toLowerCase()) > -1) {
+                        match++;
+                    }
+                    else if (p.description.toLowerCase().indexOf(this.state.searchText.toLowerCase()) > -1) {
+                        match++;
+                    }
+                    else if (p.topic_area.toLowerCase().indexOf(this.state.searchText.toLowerCase()) > -1) {
+                        match++;
+                    } 
+                    
+                    if (match) {
+                        projectDisplay.push(
+                            <Card style={{ marginBottom: 15 }}>
+                            <CardContent>
+                            <h3>{p.title}</h3>
+                            <p>{p.description}</p>
+                            <p>
+                                Topic Area: {p.topic_area} <br/>
+                                Supervisor: {supervisor.first_name} {supervisor.surname}
+                            </p>
+                            </CardContent>
+                            <CardActions>
+                                <Button size="small" color="primary">View Project</Button>
+                            </CardActions>
+                            </Card>
+                        ); 
+                    }
+                }
+                else {
+                    projectDisplay.push(
+                        <Card style={{ marginBottom: 15 }}>
+                        <CardContent>
+                        <h3>{p.title}</h3>
+                        <p>{p.description}</p>
+                        <p>
+                            Topic Area: {p.topic_area} <br/>
+                            Supervisor: {supervisor.first_name} {supervisor.surname}
+                        </p>
+                        </CardContent>
+                        <CardActions>
+                            <Button size="small" color="primary">View Project</Button>
+                        </CardActions>
+                        </Card>
+                    );
+                }
                 
             }
         }
@@ -60,6 +100,19 @@ class Projects extends Component {
             <h1>Honours Projects</h1>
             <p>Browse a selection of Honours Project topic ideas that have been put forward by supervisors and select a topic that you feel you would be able to successfully carry out and enjoy.</p>
             <p>Want to select your own topic? Instead you can view all project supervisors and submit a supervision request.</p>
+            <Grid container justify="center">
+            <Paper component="form" onSubmit={this.handleSearch} style={{ padding: '2px 4px', display: 'flex', alignItems: 'center', width: 600, marginBottom: 15 }}>
+            <InputBase
+                id="txtSearch"
+                style={{ flex: 1 }}
+                placeholder="Search Honours Projects"
+                inputProps={{ 'aria-label': 'search honours projects' }}
+            />
+            <IconButton type="submit" aria-label="search">
+                <SearchIcon />
+            </IconButton>
+            </Paper>
+            </Grid>
             {projectDisplay}
         </div>
         );

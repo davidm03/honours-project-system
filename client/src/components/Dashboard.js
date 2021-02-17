@@ -201,6 +201,7 @@ class Dashboard extends Component {
               <ProtectedRoute path="/manage/projects" component={()=><AdminProjects />} admin={true} />
               <ProtectedRoute path="/view/project/:id" component={(props)=><ViewProject {...props} />} admin={true} />
               <ProtectedRoute path="/projects" component={()=><Projects projects={this.state.allProjects}/>} />
+              <ProtectedRoute path="/project/" component={()=><Projects projects={this.state.allProjects}/>} />
             </Switch>
           </Container>
         </main>
