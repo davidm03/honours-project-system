@@ -14,7 +14,7 @@ import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';
 import IconButton from '@material-ui/core/IconButton';
 import { Grid } from '@material-ui/core';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 
 class Projects extends Component {
     constructor(props) {
@@ -115,7 +115,9 @@ class Projects extends Component {
         <div>
             <h1>Honours Projects</h1>
             <p>Browse a selection of Honours Project topic ideas that have been put forward by supervisors and select a topic that you feel you would be able to successfully carry out and enjoy.</p>
+            <Link to="/supervisors">
             <p>Want to select your own topic? Instead you can view all project supervisors and submit a supervision request.</p>
+            </Link>
             <Grid container justify="center">
             <Paper component="form" onSubmit={this.handleSearch} style={{ padding: '2px 4px', display: 'flex', alignItems: 'center', width: 600, marginBottom: 15 }}>
             <InputBase

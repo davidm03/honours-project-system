@@ -1,13 +1,13 @@
 const Request = require('./request.model');
 
-exports.createRequest = function (student, supervisor, idea, description) {
+exports.createRequest = function (title, description, student, supervisor) {
     return new Promise((resolve, reject) => {
         var newRequest = new Request({
-            studentID: student.id_,
-            supervisorID: supervisor.id_,
-            date: new Date(),
-            project_idea: idea,
-            description: description,
+            studentID: student._id,
+            supervisorID: supervisor._id,
+            date: new Date() / 1000,
+            title,
+            description,
             status: 'Pending'
         });
         newRequest.save(function (err) {
@@ -38,7 +38,6 @@ exports.getRequest = function (id) {
 };
 
 exports.updateRequest = function(id, update) {
-    //var update = { status: newStatus };
     return new Promise((resolve, reject) => {
         Request.findByIdAndUpdate(id, update, function (err, request) {
             if (err) {

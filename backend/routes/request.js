@@ -11,12 +11,17 @@ router.get('/', function(req, res, next) {
 /* POST create a new request */
 router.post('/create', async function(req, res, next) {
   var request = req.body;
-  var student = await userDAL.findUserByUsername(request.student.username);
-  var supervisor = await userDAL.findUserByUsername(request.supervisor.username);
-  var success = await requestDAL.createRequest(student, supervisor, request.idea, request.description);
+  var student = await userDAL.findUserById(request.studentID);
+  var supervisor = await userDAL.findUserById(request.supervisorID);
+  if (student===null || supervisor===null) {
+    res.send(false);
+  }
+  else {
+    var success = await requestDAL.createRequest(request.title, request.description, student, supervisor);
     if (success===true) {
         res.send(true);
     }
+  }  
 });
 
 /* POST update a request */
