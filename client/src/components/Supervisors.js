@@ -12,6 +12,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { Redirect } from 'react-router-dom';
 
 class Supervisors extends Component {
     constructor(props) {
@@ -28,21 +29,21 @@ class Supervisors extends Component {
     }
     handleSupervisionRequest = (e) => {
         e.preventDefault();
-        axios.post(process.env.REACT_APP_SERVER_URL + 'request/create', {
+        axios.post(process.env.REACT_APP_SERVER_URL + 'requests/create', {
             studentID: this.props.user.userId,
             supervisorID: this.state.selectedSupervisor._id,
             title: document.getElementById('txtTitle').value,
             description: document.getElementById('txtDescription').value
         }).then(res => {
             if (res.data===true) {
-                this.setState({ showDialog: false });
+                this.setState({ showDialog: false, redirect: '/requests' });
             }
         })
     }
     componentDidMount() {
         this.loadSupervisors();
     }
-    render() { 
+    render() {
         if (this.state.loading) {
             return (
                 <div>
@@ -51,6 +52,9 @@ class Supervisors extends Component {
             );
         }
         else {
+            if (this.state.redirect) {
+                <Redirect to={this.state.redirect} />
+            }
             const displaySupervisors = this.state.supervisors.map(s => (
                 <Card style={{ marginBottom: 15 }}>
                             <CardContent>

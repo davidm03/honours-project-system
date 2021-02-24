@@ -21,15 +21,31 @@ exports.createRequest = function (title, description, student, supervisor) {
     });
 }
 
-exports.getRequest = function (id) {
+exports.getStudentRequests = function (id) {
     return new Promise((resolve, reject) => {
-        Request.findOne({ _id: id }, function (err, request) {
+        Request.find({ studentID: id }, function (err, requests) {
             if (err) {
                 console.log('Error: Request not found.');
                 reject(err);
             }
             else {
-                resolve(request);
+                resolve(requests);
+            }
+        }).catch(function (err) {
+            throw (err)
+        });
+    });
+};
+
+exports.getSupervisorRequests = function (id) {
+    return new Promise((resolve, reject) => {
+        Request.find({ supervisorID: id }, function (err, requests) {
+            if (err) {
+                console.log('Error: Request not found.');
+                reject(err);
+            }
+            else {
+                resolve(requests);
             }
         }).catch(function (err) {
             throw (err)

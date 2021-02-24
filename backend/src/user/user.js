@@ -84,6 +84,28 @@ exports.getSupervisors = function () {
     })
 }
 
+exports.getStudents = function () {
+    return new Promise((resolve, reject) => {
+        User.find({}, function (err, users) {
+            if (err) {
+                reject(err);
+                console.log('Error: Unable to resolve all students.');
+            }
+            else {
+                var students = [];
+                for (let index = 0; index < users.length; index++) {
+                    const user = users[index];
+                    if (user.role.includes("STUDENT")) {
+                        students.push(user);
+                    }
+                }
+                resolve(students);
+                console.log('Success: All students resolved.');
+            }
+        });
+    })
+}
+
 exports.authenticateUser = function (email, password) {
     return new Promise((resolve, reject) => {
         User.findOne({ email: email }, function (err, user) {

@@ -1,4 +1,5 @@
 var express = require('express');
+const { request } = require('../app.js');
 var router = express.Router();
 var requestDAL = require('../src/request/request.js');
 var userDAL = require('../src/user/user.js');
@@ -40,6 +41,28 @@ router.post('/delete', async function(req, res, next) {
       if (success===true) {
           res.send(true);
       }
+});
+
+router.get('/student/:id', async function(req, res, next) {
+  var userID = req.params["id"];
+  var requests = await requestDAL.getStudentRequests(userID);
+  if (requests) {
+    res.send(requests);
+  }
+  else {
+    res.send(false);
+  }
+});
+
+router.get('/supervisor/:id', async function(req, res, next) {
+  var userID = req.params["id"];
+  var requests = await requestDAL.getSupervisorRequests(userID);
+  if (requests) {
+    res.send(requests);
+  }
+  else {
+    res.send(false);
+  }
 });
 
 module.exports = router;

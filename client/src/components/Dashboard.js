@@ -15,7 +15,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import { mainListItems, adminListItems } from './listItems';
-import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch, Redirect, Link } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute';
 import Users from './Users';
 import AdminProjects from './AdminProjects';
@@ -28,6 +28,7 @@ import Projects from './Projects';
 import axios from 'axios';
 import ExpandProject from './ExpandProject';
 import Supervisors from './Supervisors';
+import MyRequests from './MyRequests';
 
 const drawerWidth = 240;
 
@@ -113,7 +114,7 @@ const useStyles = theme => ({
 class Dashboard extends Component {
   constructor(props){
     super(props);
-    this.state = { open: true, redirect: null, allProjects: [] };
+    this.state = { open: true, redirect: null, allProjects: [], myRequests: [] };
   }
   handleLogout = () => {
     localStorage.removeItem('access-token');
@@ -127,8 +128,28 @@ class Dashboard extends Component {
         }
     });
   }
+  loadRequests = () => {
+    const user = this.props.user;
+    if (user.role.includes("STUDENT")) {
+      axios.get(process.env.REACT_APP_SERVER_URL + 'requests/student/' + user.userId)
+      .then(res => {
+        if (res.data) {
+          this.setState({ myRequests: res.data });
+        }
+      });
+    }
+    else {
+      axios.get(process.env.REACT_APP_SERVER_URL + 'requests/supervisor/' + user.userId)
+      .then(res => {
+        if (res.data) {
+          this.setState({ myRequests: res.data });
+        }
+      });
+    }
+  }
   componentDidMount() {
     this.loadProjects();
+    this.loadRequests();
   }
   render() {
   if (this.state.redirect) {
@@ -163,11 +184,13 @@ class Dashboard extends Component {
             <Button endIcon={<ArrowDropDownIcon />} style={{color: "white"}}>
               { this.props.user.email }
             </Button>
+            <Link to="/requests" style={{ color: "white" }}>
             <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
+                <Badge badgeContent={this.state.myRequests.length} color="secondary">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
+            </Link>
             <IconButton color="inherit" onClick={this.handleLogout}>
               <ExitToAppIcon />
             </IconButton>
@@ -205,6 +228,7 @@ class Dashboard extends Component {
               <ProtectedRoute path="/projects" component={()=><Projects projects={this.state.allProjects}/>} />
               <ProtectedRoute path="/project/:id" component={(props)=><ExpandProject {...props} user={this.props.user}/>} />
               <ProtectedRoute path="/supervisors" component={(props)=><Supervisors {...props} user={this.props.user}/>} />
+              <ProtectedRoute path="/requests" component={(props)=><MyRequests {...props} requests={this.state.myRequests} user={this.props.user}/>} />
             </Switch>
           </Container>
         </main>
