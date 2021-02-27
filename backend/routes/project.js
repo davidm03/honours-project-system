@@ -28,7 +28,10 @@ router.post('/add', async function(req, res, next) {
 /* POST update a project */
 router.post('/update', async function(req, res, next) {
     var updatedProject = req.body;
-    var student = await userDAL.getStudentByStudentId(updatedProject.studentID);
+    var student = await userDAL.findUserById(updatedProject.studentID);
+    if (!student) {
+      student = await userDAL.getStudentByStudentId(updatedProject.studentID);
+    }
     if (student!=null) {
       updatedProject.studentID = student._id;
       var success = await projectDAL.updateProject(updatedProject._id, updatedProject);

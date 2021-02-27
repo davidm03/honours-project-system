@@ -27,14 +27,15 @@ class ExpandProject extends Component {
         })
     }
     handleSelectProject = () => {
-        var user = this.props.user;
+        const user = this.props.user;
+        console.log(user);
         axios.post(process.env.REACT_APP_SERVER_URL + 'project/update', {
             _id: this.state.project._id,
-            studentID: user._id,
+            studentID: user.userId,
             available: false
         }).then(res => {
             if (res.data===true) {
-                console.log("success!");
+                this.props.reloadProjects();
             }
         })
     }
