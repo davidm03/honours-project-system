@@ -130,6 +130,7 @@ class Dashboard extends Component {
   }
   loadRequests = () => {
     const user = this.props.user;
+    var requests = [];
     if (user.role.includes("STUDENT")) {
       axios.get(process.env.REACT_APP_SERVER_URL + 'requests/student/' + user.userId)
       .then(res => {
@@ -142,7 +143,13 @@ class Dashboard extends Component {
       axios.get(process.env.REACT_APP_SERVER_URL + 'requests/supervisor/' + user.userId)
       .then(res => {
         if (res.data) {
-          this.setState({ myRequests: res.data });
+          for (let index = 0; index < res.data.length; index++) {
+            const request = res.data[index];
+            if (request.status === 'Pending') {
+              requests.push(request);
+            }
+          }
+          this.setState({ myRequests: requests });
         }
       });
     }
@@ -228,7 +235,7 @@ class Dashboard extends Component {
               <ProtectedRoute path="/projects" component={()=><Projects projects={this.state.allProjects}/>} />
               <ProtectedRoute path="/project/:id" component={(props)=><ExpandProject {...props} user={this.props.user}/>} />
               <ProtectedRoute path="/supervisors" component={(props)=><Supervisors {...props} user={this.props.user}/>} />
-              <ProtectedRoute path="/requests" component={(props)=><MyRequests {...props} requests={this.state.myRequests} user={this.props.user}/>} />
+              <ProtectedRoute path="/requests" component={(props)=><MyRequests {...props} requests={this.state.myRequests} user={this.props.user} loadRequests={this.loadRequests}/>} />
             </Switch>
           </Container>
         </main>

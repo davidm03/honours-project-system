@@ -33,7 +33,8 @@ class Supervisors extends Component {
             studentID: this.props.user.userId,
             supervisorID: this.state.selectedSupervisor._id,
             title: document.getElementById('txtTitle').value,
-            description: document.getElementById('txtDescription').value
+            description: document.getElementById('txtDescription').value,
+            topic_area: document.getElementById('txtTopicArea').value
         }).then(res => {
             if (res.data===true) {
                 this.setState({ showDialog: false, redirect: '/requests' });
@@ -103,7 +104,14 @@ class Supervisors extends Component {
                             required
                             multiline
                             rows={3}
-                        />       
+                        />
+                        <TextField
+                            margin="dense"
+                            id="txtTopicArea"
+                            label="Topic Area (e.g. Web Application Development, A.I, Machine Learning)"
+                            fullWidth
+                            required
+                        />        
                         </DialogContent>
                         <DialogActions>
                         <Button onClick={()=>{this.setState({ showDialog: false })}} color="primary">

@@ -7,6 +7,7 @@ let Request = new Schema({
     date: { type: Number },
     title: { type: String },
     description: { type: String },
+    topic_area: { type: String },
     status: { type: String }
 });
 

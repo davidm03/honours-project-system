@@ -18,7 +18,7 @@ router.post('/create', async function(req, res, next) {
     res.send(false);
   }
   else {
-    var success = await requestDAL.createRequest(request.title, request.description, student, supervisor);
+    var success = await requestDAL.createRequest(request.title, request.description, request.topic_area, student, supervisor);
     if (success===true) {
         res.send(true);
     }
@@ -32,6 +32,22 @@ router.post('/update', async function(req, res, next) {
       if (success===true) {
           res.send(true);
       }
+});
+
+/* POST accept a request */
+router.post('/accept', async function(req, res, next) {
+  var success = await requestDAL.acceptRequest(req.body.requestID);
+    if (success===true) {
+        res.send(true);
+    }
+});
+
+/* POST decline a request */
+router.post('/decline', async function(req, res, next) {
+  var success = await requestDAL.declineRequest(req.body.requestID);
+    if (success===true) {
+        res.send(true);
+    }
 });
 
 /* POST delete a request */

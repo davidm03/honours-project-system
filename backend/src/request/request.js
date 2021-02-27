@@ -1,6 +1,7 @@
 const Request = require('./request.model');
+const projectDAL = require('../project/project');
 
-exports.createRequest = function (title, description, student, supervisor) {
+exports.createRequest = function (title, description, topic_area, student, supervisor) {
     return new Promise((resolve, reject) => {
         var newRequest = new Request({
             studentID: student._id,
@@ -8,6 +9,7 @@ exports.createRequest = function (title, description, student, supervisor) {
             date: new Date() / 1000,
             title,
             description,
+            topic_area,
             status: 'Pending'
         });
         newRequest.save(function (err) {
@@ -69,6 +71,46 @@ exports.updateRequest = function(id, update) {
         });
     });
 };
+
+exports.acceptRequest = function(id) {
+    return new Promise((resolve, reject) => {
+        Request.findByIdAndUpdate(id, { status: "Accepted" }, function (err, request) {
+            if (err) {
+                reject(err);
+                console.log('Error: Failed to accept request.');
+            }
+            else {
+                console.log('Success: Request status accepted.');
+                var addProject = projectDAL.addProject(request.title, request.description, request.topic_area, false, "", request.studentID, request.supervisorID);
+                if (addProject) {
+                    resolve(true);
+                }
+                else {
+                    resolve(false);
+                }
+            }
+        }).catch(function (err) {
+            console.error(err);
+        });
+    });
+}
+
+exports.declineRequest = function(id) {
+    return new Promise((resolve, reject) => {
+        Request.findByIdAndUpdate(id, { status: "Declined" }, function (err, request) {
+            if (err) {
+                reject(err);
+                console.log('Error: Failed to decline request.');
+            }
+            else {
+                console.log('Success: Request status declined.');
+                resolve(true);
+            }
+        }).catch(function (err) {
+            console.error(err);
+        });
+    });
+}
 
 exports.deleteRequest = function(id) {
     Request.findByIdAndDelete(id, function (err, doc) {
