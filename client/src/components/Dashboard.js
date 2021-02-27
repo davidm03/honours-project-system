@@ -29,6 +29,7 @@ import axios from 'axios';
 import ExpandProject from './ExpandProject';
 import Supervisors from './Supervisors';
 import MyRequests from './MyRequests';
+import MyProject from './MyProject';
 
 const drawerWidth = 240;
 
@@ -114,17 +115,32 @@ const useStyles = theme => ({
 class Dashboard extends Component {
   constructor(props){
     super(props);
-    this.state = { open: true, redirect: null, allProjects: [], myRequests: [] };
+    this.state = { open: true, redirect: null, allProjects: [], myRequests: [], supervisors: [], myStudents: [], myProjectData: [] };
   }
   handleLogout = () => {
     localStorage.removeItem('access-token');
     this.setState({ redirect: "/login" });
   }
+  loadSupervisors = () => {
+    axios.get(process.env.REACT_APP_SERVER_URL + 'users/supervisors')
+    .then(res => {
+      if (res.data.length > 0) {
+        this.setState({ supervisors: res.data });
+      }
+    })
+  }
   loadProjects = () => {
     axios.get(process.env.REACT_APP_SERVER_URL + 'project')
     .then(res => {
         if (res.data) {
-            this.setState({ allProjects: res.data });
+            const myProject = res.data.find(project => project.studentID === this.props.user.userId);
+            const mySupervisor = this.state.supervisors.find(supervisor => supervisor._id === myProject.supervisorID);
+            var data = {
+              user: this.props.user,
+              project: myProject,
+              supervisor: mySupervisor
+            }
+            this.setState({ allProjects: res.data, myProjectData: data });
         }
     });
   }
@@ -155,6 +171,7 @@ class Dashboard extends Component {
     }
   }
   componentDidMount() {
+    this.loadSupervisors();
     this.loadProjects();
     this.loadRequests();
   }
@@ -233,9 +250,10 @@ class Dashboard extends Component {
               <ProtectedRoute path="/manage/projects" component={()=><AdminProjects />} admin={true} />
               <ProtectedRoute path="/view/project/:id" component={(props)=><ViewProject {...props} />} admin={true} />
               <ProtectedRoute path="/projects" component={()=><Projects projects={this.state.allProjects}/>} />
-              <ProtectedRoute path="/project/:id" component={(props)=><ExpandProject {...props} user={this.props.user}/>} />
+              <ProtectedRoute path="/project/:id" component={(props)=><ExpandProject {...props} user={this.props.user} reloadProjects={this.loadProjects}/>} />
               <ProtectedRoute path="/supervisors" component={(props)=><Supervisors {...props} user={this.props.user}/>} />
               <ProtectedRoute path="/requests" component={(props)=><MyRequests {...props} requests={this.state.myRequests} user={this.props.user} loadRequests={this.loadRequests}/>} />
+              <ProtectedRoute path="/my-project" component={(props)=><MyProject {...props} data={this.state.myProjectData}/>} />
             </Switch>
           </Container>
         </main>

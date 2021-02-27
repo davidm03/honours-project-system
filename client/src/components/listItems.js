@@ -27,7 +27,7 @@ export const mainListItems = (
       <ListItemText primary="Honours Projects" />
     </ListItem>
     </Link>
-    <Link to="/projects" style={{textDecoration: 'none', color: 'black'}}>
+    <Link to="/my-project" style={{textDecoration: 'none', color: 'black'}}>
     <ListItem button>
       <ListItemIcon>
         <FolderIcon />
