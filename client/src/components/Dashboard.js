@@ -135,11 +135,15 @@ class Dashboard extends Component {
     .then(res => {
         if (res.data && isStudent) {
             const myProject = res.data.find(project => project.studentID === this.props.user.userId);
-            const mySupervisor = this.state.supervisors.find(supervisor => supervisor._id === myProject.supervisorID);
-            var data = {
+            var data = null;
+
+            if (myProject) {
+              const mySupervisor = this.state.supervisors.find(supervisor => supervisor._id === myProject.supervisorID);
+              data = {
               user: this.props.user,
               project: myProject,
               supervisor: mySupervisor
+              }
             }
             this.setState({ allProjects: res.data, myProjectData: data });
         }

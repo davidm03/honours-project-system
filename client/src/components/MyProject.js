@@ -13,6 +13,17 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import Avatar from '@material-ui/core/Avatar';
+import ListItemText from '@material-ui/core/ListItemText';
+
+import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
+import UpdateIcon from '@material-ui/icons/Update';
+import MessageIcon from '@material-ui/icons/Message';
+import CommentIcon from '@material-ui/icons/Comment';
+
 class MyProject extends Component {
     constructor(props) {
         super(props);
@@ -20,12 +31,14 @@ class MyProject extends Component {
     }
     handleStatusUpdate = (e) => {
         e.preventDefault();
-        const project = this.props.data.project;
+        var project = this.props.data.project;
         const user = this.props.data.user;
         const status = document.getElementById('txtUpdateStatus').value;
+        project.activity.push({ action: "update", activity: status });
         axios.post(process.env.REACT_APP_SERVER_URL + 'project/update', {
             _id: project._id,
             status: status,
+            activity: project.activity,
             studentID: user.userId
         }).then(res => {
             if (res.data === true) {
@@ -34,18 +47,89 @@ class MyProject extends Component {
         })
     }
     render() {
-        const project = this.props.data.project;
-        const supervisor = this.props.data.supervisor;
-        var noProjectDisplay = [];
-        var projectInformation = [];
-        var projectStatus = [];
-        if (!project) {
-            noProjectDisplay.push(
-                <Alert severity="warning" style={{ width: "100%" }}>You have not selected an Honours Project! - <Link to="/projects">You can either select a project from the system or request your own.</Link></Alert> 
-            );
+        var project;
+        var supervisor;
+        var activityItems = [];
+
+        if (this.props.data) {
+            project = this.props.data.project;
+            supervisor = this.props.data.supervisor;
+
+            for (let index = 0; index < project.activity.length; index++) {
+                const activity = project.activity[index];
+                var listItem; 
+                switch (activity.action) {
+                    case "update":
+                        var text = "Project status has been updated to: " + activity.activity;
+                        listItem = (
+                        <ListItem>
+                        <ListItemIcon>
+                            <UpdateIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="Status Update"
+                            secondary={text}
+                        />
+                        </ListItem>
+                        );
+                        break;
+                    case "create":
+                        var text = "Project has been initiated.";
+                        listItem = (
+                        <ListItem>
+                        <ListItemIcon>
+                            <CreateNewFolderIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="Project Created"
+                            secondary={text}
+                        />
+                        </ListItem>
+                        );
+                        break;
+                    case "comment":
+                        listItem = (
+                        <ListItem>
+                        <ListItemIcon>
+                            <Avatar style={{ color: 'primary' }}>{supervisor.first_name.charAt(0).toUppercase()}{supervisor.surname.charAt(0).toUppercase()}</Avatar>
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="Supervisor Comment"
+                            secondary={activity.activity}
+                        />
+                        </ListItem>
+                        );
+                        break;
+                    case "note":
+                        listItem = (
+                            <ListItem>
+                            <ListItemIcon>
+                                <Avatar style={{ color: 'primary' }}>{supervisor.first_name.charAt(0).toUppercase()}{supervisor.surname.charAt(0).toUppercase()}</Avatar>
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Note Added By Student"
+                                secondary={activity.activity}
+                            />
+                            </ListItem>
+                            );
+                        break;
+                    default:
+                        break;
+                }
+                activityItems.push(listItem);
+            }
         }
-        else {
-            projectInformation.push(
+
+        return ( 
+            <div>
+                <h1>My Project</h1>
+                <p>View all information about your selected honours project. From here you can update the status of your project for your supervisor to see or add activity notes.</p>
+                {!project && (
+                    <Alert severity="warning" style={{ width: "100%" }}>You have not selected an Honours Project! - <Link to="/projects">You can either select a project from the system or request your own.</Link></Alert>
+                )}
+
+                {project && (
+                <>
                 <Card>
                     <CardContent>
                         <Typography
@@ -76,8 +160,7 @@ class MyProject extends Component {
                         </Grid>
                     </CardContent>
                 </Card>
-            );
-            projectStatus.push(
+                
                 <Card style={{ marginTop: 20 }}>
                     <CardContent>
                     <Typography
@@ -93,14 +176,22 @@ class MyProject extends Component {
                         <Button variant="contained" color={'primary'} onClick={()=>this.setState({ updateStatusDialog: true })}>Update Status</Button>
                     </CardActions>
                 </Card>
-            );
-        }
-        return ( 
-            <div>
-                <h1>My Project</h1>
-                {noProjectDisplay}
-                {projectInformation}
-                {projectStatus}
+
+                <Card style={{ marginTop: 20 }}>
+                    <CardContent>
+                    <Typography
+                            color="textPrimary"
+                            gutterBottom
+                            variant="h5"
+                            align="center"
+                            >
+                            Recent Activity{" "}
+                        </Typography>
+                        <List>
+                            {activityItems.reverse()}
+                        </List>
+                    </CardContent>
+                </Card>
 
                 <Dialog open={this.state.updateStatusDialog} onClose={()=>this.setState({ updateStatusDialog: false })}>
                         <DialogTitle id="form-dialog-title">Update Status</DialogTitle>
@@ -128,6 +219,8 @@ class MyProject extends Component {
                         </DialogActions>
                         </form>
                     </Dialog>
+                </>
+                )}
             </div> 
         );
     }
