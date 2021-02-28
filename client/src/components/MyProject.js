@@ -21,7 +21,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
 import UpdateIcon from '@material-ui/icons/Update';
-import MessageIcon from '@material-ui/icons/Message';
+import SendIcon from '@material-ui/icons/Send';
 import CommentIcon from '@material-ui/icons/Comment';
 
 class MyProject extends Component {
@@ -43,6 +43,23 @@ class MyProject extends Component {
         }).then(res => {
             if (res.data === true) {
                 this.props.reloadProject();
+            }
+        })
+    }
+    handleAddNote = (e) => {
+        e.preventDefault();
+        var project = this.props.data.project;
+        const user = this.props.data.user;
+        const note = document.getElementById('txtNote').value;
+        project.activity.push({ action: "note", activity: note });
+        axios.post(process.env.REACT_APP_SERVER_URL + 'project/update', {
+            _id: project._id,
+            activity: project.activity,
+            studentID: user.userId
+        }).then(res => {
+            if (res.data === true) {
+                this.props.reloadProject();
+                document.getElementById('txtNote').value = "";
             }
         })
     }
@@ -104,7 +121,7 @@ class MyProject extends Component {
                         listItem = (
                             <ListItem>
                             <ListItemIcon>
-                                <Avatar style={{ color: 'primary' }}>{supervisor.first_name.charAt(0).toUppercase()}{supervisor.surname.charAt(0).toUppercase()}</Avatar>
+                                <CommentIcon/>
                             </ListItemIcon>
                             <ListItemText
                                 primary="Note Added By Student"
@@ -190,6 +207,33 @@ class MyProject extends Component {
                         <List>
                             {activityItems.reverse()}
                         </List>
+                    </CardContent>
+                </Card>
+
+                <Card style={{ marginTop: 20 }}>
+                    <CardContent>
+                    <Typography
+                            color="textPrimary"
+                            gutterBottom
+                            variant="h5"
+                            align="center"
+                            >
+                            Add Note{" "}
+                    </Typography>
+                    <p>Notes can be used to document any information you wish to be stored with this project or for questions/queries your supervisor can respond to.</p>
+                    <form onSubmit={this.handleAddNote}>
+                    <TextField
+                    id="txtNote"
+                    multiline
+                    rows={6}
+                    placeholder="Add your note here"
+                    variant="outlined"
+                    fullWidth
+                    required
+                    style={{ marginBottom: 10}}
+                    />
+                    <Button color="primary" type="submit" variant="contained" endIcon={<SendIcon/>} style={{ float: 'right', marginBottom: 10 }}>Add Note</Button>
+                    </form>
                     </CardContent>
                 </Card>
 
