@@ -130,9 +130,10 @@ class Dashboard extends Component {
     })
   }
   loadProjects = () => {
+    const isStudent = this.props.user.role.includes("STUDENT");
     axios.get(process.env.REACT_APP_SERVER_URL + 'project')
     .then(res => {
-        if (res.data) {
+        if (res.data && isStudent) {
             const myProject = res.data.find(project => project.studentID === this.props.user.userId);
             const mySupervisor = this.state.supervisors.find(supervisor => supervisor._id === myProject.supervisorID);
             var data = {
@@ -141,6 +142,10 @@ class Dashboard extends Component {
               supervisor: mySupervisor
             }
             this.setState({ allProjects: res.data, myProjectData: data });
+        }
+        else if (res.data && !isStudent) {
+          //SET CODE FOR SUPERVISOR STUFF IN HERE
+          this.setState({ allProjects: res.data });
         }
     });
   }
@@ -247,11 +252,11 @@ class Dashboard extends Component {
             <Switch>
               <ProtectedRoute path="/manage/users" component={()=><Users />} admin={true} />
               <ProtectedRoute path="/view/user/:id" component={(props)=><ViewUser {...props} />} admin={true} />
-              <ProtectedRoute path="/manage/projects" component={()=><AdminProjects />} admin={true} />
+              <ProtectedRoute path="/manage/projects" component={()=><AdminProjects data={{projects: this.state.allProjects, supervisors: this.state.supervisors}}/>} admin={true} />
               <ProtectedRoute path="/view/project/:id" component={(props)=><ViewProject {...props} />} admin={true} />
-              <ProtectedRoute path="/projects" component={()=><Projects projects={this.state.allProjects}/>} />
-              <ProtectedRoute path="/project/:id" component={(props)=><ExpandProject {...props} user={this.props.user} reloadProjects={this.loadProjects}/>} />
-              <ProtectedRoute path="/supervisors" component={(props)=><Supervisors {...props} user={this.props.user}/>} />
+              <ProtectedRoute path="/projects" component={()=><Projects projects={this.state.allProjects} supervisors={this.state.supervisors}/>} />
+              <ProtectedRoute path="/project/:id" component={(props)=><ExpandProject {...props} user={this.props.user} data={{projects: this.state.allProjects, supervisors: this.state.supervisors}} reloadProjects={this.loadProjects}/>} />
+              <ProtectedRoute path="/supervisors" component={(props)=><Supervisors {...props} user={this.props.user} supervisors={this.state.supervisors}/>} />
               <ProtectedRoute path="/requests" component={(props)=><MyRequests {...props} requests={this.state.myRequests} user={this.props.user} loadRequests={this.loadRequests}/>} />
               <ProtectedRoute path="/my-project" component={(props)=><MyProject {...props} data={this.state.myProjectData}/>} />
             </Switch>

@@ -12,23 +12,13 @@ class ExpandProject extends Component {
         this.state = { loading: true, project: null, supervisor: null }
     }
     loadProjectData = () => {
-        var id = this.props.id; 
-        axios.get(process.env.REACT_APP_SERVER_URL + "project/view/" + id)
-        .then(res => {
-            if (res.data._id) {
-                var project = res.data;
-                axios.get(process.env.REACT_APP_SERVER_URL + 'users/view/' + res.data.supervisorID)
-                .then(res => {
-                    if (res.data._id) {
-                        this.setState({ project: project, supervisor: res.data, loading: false });    
-                    }
-                })   
-            }
-        })
+        const id = this.props.id;
+        const project = this.props.data.projects.find(p=>p._id === id);
+        const supervisor = this.props.data.supervisors.find(s=>s._id === project.supervisorID);
+        this.setState({ loading: false, project: project, supervisor: supervisor });
     }
     handleSelectProject = () => {
         const user = this.props.user;
-        console.log(user);
         axios.post(process.env.REACT_APP_SERVER_URL + 'project/update', {
             _id: this.state.project._id,
             studentID: user.userId,

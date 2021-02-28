@@ -17,37 +17,17 @@ import { AddProject, DeleteProjects } from "./manageProjects";
 class AdminProjects extends Component {
     constructor(props) {
         super(props);
-        this.state = { projects:[], redirect: null, successMessage: null, errorMessage: null, selectedProjects: [], supervisors: [] }
-    }
-    loadProjects = () => {
-        axios.get(process.env.REACT_APP_SERVER_URL + 'project')
-        .then(res => {
-            if (res.data) {
-                this.setState({ projects: res.data });
-            }
-        });
-    }
-    loadSupervisors = () => {
-        axios.get(process.env.REACT_APP_SERVER_URL + 'users/supervisors')
-        .then(res => {
-            if (res.data.length>0) {
-                this.setState({ supervisors: res.data });
-            }
-        });
+        this.state = { projects: this.props.data.projects, redirect: null, successMessage: null, errorMessage: null, selectedProjects: [], supervisors: this.props.data.supervisors }
     }
     handleViewProjectClick = () => {
         this.setState({ redirect: "/view/project/" + this.state.selectedProjects.pop() });
-    }
-    componentDidMount() {
-        this.loadProjects();
-        this.loadSupervisors();
     }
     render() {
         if (this.state.redirect) {
             return <Redirect to={this.state.redirect} />
         }
 
-        var projects = this.state.projects;
+        const projects = this.state.projects;
         const columns = [
             {field: 'id', headerName: 'ID', width: 230},
             {field: 'title', headerName: 'Title', width: 220},

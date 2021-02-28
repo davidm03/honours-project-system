@@ -6,6 +6,8 @@ import {Link} from 'react-router-dom';
 import { Card, CardContent, Grid, Paper } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 class MyProject extends Component {
     constructor(props) {
         super(props);
@@ -16,6 +18,7 @@ class MyProject extends Component {
         const supervisor = this.props.data.supervisor;
         var noProjectDisplay = [];
         var projectInformation = [];
+        var projectStatus = [];
         if (!project) {
             noProjectDisplay.push(
                 <Alert severity="warning" style={{ width: "100%" }}>You have not selected an Honours Project! - <Link to="/projects">You can either select a project from the system or request your own.</Link></Alert> 
@@ -54,12 +57,27 @@ class MyProject extends Component {
                     </CardContent>
                 </Card>
             );
+            projectStatus.push(
+                <Card style={{ marginTop: 20 }}>
+                    <CardContent>
+                    <Typography
+                            color="textPrimary"
+                            gutterBottom
+                            variant="h5"
+                            align="center"
+                            >
+                            Current Status: {project.status}{" "}
+                        </Typography>
+                    </CardContent>
+                </Card>
+            );
         }
         return ( 
             <div>
                 <h1>My Project</h1>
                 {noProjectDisplay}
                 {projectInformation}
+                {projectStatus}
             </div> 
         );
     }

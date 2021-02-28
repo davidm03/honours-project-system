@@ -17,15 +17,7 @@ import { Redirect } from 'react-router-dom';
 class Supervisors extends Component {
     constructor(props) {
         super(props);
-        this.state = { supervisors: [], loading: true, showDialog: false, selectedSupervisor: {} }
-    }
-    loadSupervisors = () => {
-        axios.get(process.env.REACT_APP_SERVER_URL + 'users/supervisors')
-        .then(res => {
-            if (res.data.length > 0) {
-                this.setState({ supervisors: res.data, loading: false });
-            }
-        })
+        this.state = { supervisors: this.props.supervisors, showDialog: false, selectedSupervisor: {} }
     }
     handleSupervisionRequest = (e) => {
         e.preventDefault();
@@ -40,9 +32,6 @@ class Supervisors extends Component {
                 this.setState({ showDialog: false, redirect: '/requests' });
             }
         })
-    }
-    componentDidMount() {
-        this.loadSupervisors();
     }
     render() {
         if (this.state.loading) {

@@ -19,22 +19,11 @@ import { Link, Redirect } from 'react-router-dom';
 class Projects extends Component {
     constructor(props) {
         super(props);
-        this.state = { supervisors:[], searchText: "", redirect: null }
-    }
-    loadSupervisors = () => {
-        axios.get(process.env.REACT_APP_SERVER_URL + 'users/supervisors')
-        .then(res => {
-            if (res.data.length>0) {
-                this.setState({ supervisors: res.data });
-            }
-        });
+        this.state = { supervisors: this.props.supervisors, searchText: "", redirect: null }
     }
     handleSearch = (e) => {
         e.preventDefault();
         this.setState({ searchText: document.getElementById('txtSearch').value });
-    }
-    componentDidMount() {
-        this.loadSupervisors();
     }
     render() { 
         if (this.state.redirect) {
