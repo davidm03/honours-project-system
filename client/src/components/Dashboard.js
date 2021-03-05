@@ -30,6 +30,7 @@ import ExpandProject from './ExpandProject';
 import Supervisors from './Supervisors';
 import MyRequests from './MyRequests';
 import MyProject from './MyProject';
+import SupervisorStudents from './SupervisorStudents';
 
 const drawerWidth = 240;
 
@@ -294,11 +295,15 @@ class Dashboard extends Component {
               <ProtectedRoute path="/view/user/:id" component={(props)=><ViewUser {...props} />} admin={true} />
               <ProtectedRoute path="/manage/projects" component={()=><AdminProjects data={{projects: this.state.allProjects, supervisors: this.state.supervisors}}/>} admin={true} />
               <ProtectedRoute path="/view/project/:id" component={(props)=><ViewProject {...props} />} admin={true} />
+              
               <ProtectedRoute path="/projects" component={()=><Projects projects={this.state.allProjects} supervisors={this.state.supervisors}/>} />
               <ProtectedRoute path="/project/:id" component={(props)=><ExpandProject {...props} user={this.props.user} data={{projects: this.state.allProjects, supervisors: this.state.supervisors}} reloadProjects={this.loadProjects}/>} />
               <ProtectedRoute path="/supervisors" component={(props)=><Supervisors {...props} user={this.props.user} supervisors={this.state.supervisors}/>} />
+              
               <ProtectedRoute path="/requests" component={(props)=><MyRequests {...props} requests={this.state.myRequests} user={this.props.user} loadRequests={this.loadRequests}/>} />
               <ProtectedRoute path="/my-project" component={(props)=><MyProject {...props} data={this.state.myProjectData} reloadProject={this.loadProjects}/>} />
+
+              <ProtectedRoute path="/supervisor/students" component={(props)=><SupervisorStudents data={this.state.supervisorData}/>} supervisor={true}/>
             </Switch>
           </Container>
         </main>

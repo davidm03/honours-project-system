@@ -63,20 +63,20 @@ export const adminListItems = (
 export const supervisorListItems = (
   <div>
     <ListSubheader inset>Project Supervision</ListSubheader>
-    <Link to="/manage/users" style={{ textDecoration: 'none', color: 'black' }}>
+    <Link to="/supervisor/students" style={{ textDecoration: 'none', color: 'black' }}>
     <ListItem button>
       <ListItemIcon>
         <PeopleIcon />
       </ListItemIcon>
-      <ListItemText primary="Users" />
+      <ListItemText primary="My Students" />
     </ListItem>
     </Link>
-    <Link to="/manage/projects" style={{ textDecoration: 'none', color: 'black' }}>
+    <Link to="/supervisor/projects" style={{ textDecoration: 'none', color: 'black' }}>
     <ListItem button>
       <ListItemIcon>
         <FolderIcon />
       </ListItemIcon>
-      <ListItemText primary="Projects" />
+      <ListItemText primary="My Projects" />
     </ListItem>
     </Link>
   </div>
