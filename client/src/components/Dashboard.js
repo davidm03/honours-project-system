@@ -14,7 +14,7 @@ import Container from '@material-ui/core/Container';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-import { mainListItems, adminListItems } from './listItems';
+import { mainListItems, adminListItems, supervisorListItems } from './listItems';
 import { BrowserRouter as Router, Route, Switch, Redirect, Link } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute';
 import Users from './Users';
@@ -115,7 +115,7 @@ const useStyles = theme => ({
 class Dashboard extends Component {
   constructor(props){
     super(props);
-    this.state = { open: true, redirect: null, allProjects: [], myRequests: [], supervisors: [], myStudents: [], myProjectData: [] };
+    this.state = { open: true, redirect: null, allProjects: [], myRequests: [], supervisors: [], supervisorData: {}, myProjectData: [] };
   }
   handleLogout = () => {
     localStorage.removeItem('access-token');
@@ -126,6 +126,24 @@ class Dashboard extends Component {
     .then(res => {
       if (res.data.length > 0) {
         this.setState({ supervisors: res.data });
+      }
+    })
+  }
+  loadStudents = () => {
+    axios.get(process.env.REACT_APP_SERVER_URL + 'users/students')
+    .then(res => {
+      if (res.data.length > 0) {
+        var myProjects = this.state.supervisorData.projects;
+        var myStudents = [], i = 0, len = res.data.length; 
+        while (i<len) {
+          const student = res.data[i];
+          const isMyStudent = myProjects.some(project => project.studentID === student._id);
+          if (isMyStudent) myStudents.push(student); 
+          i++;
+        }
+        var data = this.state.supervisorData;
+        data.students = myStudents; 
+        this.setState({ supervisorData: data });
       }
     })
   }
@@ -148,8 +166,17 @@ class Dashboard extends Component {
             this.setState({ allProjects: res.data, myProjectData: data });
         }
         else if (res.data && !isStudent) {
-          //SET CODE FOR SUPERVISOR STUFF IN HERE
-          this.setState({ allProjects: res.data });
+          var supervisorProjects = [], i = 0, len = res.data.length; 
+          while (i < len) {
+            if (res.data[i].supervisorID === this.props.user.userId) {
+              supervisorProjects.push(res.data[i]);
+            }
+            i++;
+          }
+          var data = this.state.supervisorData;
+          data.user = this.props.user;
+          data.projects = supervisorProjects;
+          this.setState({ allProjects: res.data, supervisorData: data });
         }
     });
   }
@@ -183,6 +210,9 @@ class Dashboard extends Component {
     this.loadSupervisors();
     this.loadProjects();
     this.loadRequests();
+    if (this.props.user.role.includes("SUPERVISOR")) {
+      this.loadStudents();
+    }
   }
   render() {
   if (this.state.redirect) {
@@ -247,6 +277,12 @@ class Dashboard extends Component {
             <>
              <Divider />
             <List>{adminListItems}</List>
+            </>
+          )}
+          {this.props.user.role.includes("SUPERVISOR") && (
+            <>
+              <Divider />
+              <List>{supervisorListItems}</List>
             </>
           )}
         </Drawer>
