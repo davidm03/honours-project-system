@@ -14,7 +14,7 @@ import Container from '@material-ui/core/Container';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-import { mainListItems, adminListItems, supervisorListItems } from './listItems';
+import { mainListItems, adminListItems, supervisorListItems, studentListItems } from './listItems';
 import { BrowserRouter as Router, Route, Switch, Redirect, Link } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute';
 import Users from './Users';
@@ -247,13 +247,13 @@ class Dashboard extends Component {
             <Button endIcon={<ArrowDropDownIcon />} style={{color: "white"}}>
               { this.props.user.email }
             </Button>
-            <Link to="/requests" style={{ color: "white" }}>
+            {/* <Link to="/requests" style={{ color: "white" }}>
             <IconButton color="inherit">
                 <Badge badgeContent={this.state.myRequests.length} color="secondary">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
-            </Link>
+            </Link> */}
             <IconButton color="inherit" onClick={this.handleLogout}>
               <ExitToAppIcon />
             </IconButton>
@@ -272,7 +272,7 @@ class Dashboard extends Component {
             </IconButton>
           </div>
           <Divider />
-          <List>{mainListItems}</List>
+          <List>{mainListItems(0)}</List>
           {this.props.user.role.includes("MODULE_LEADER") && (
             <>
              <Divider />
@@ -283,6 +283,12 @@ class Dashboard extends Component {
             <>
               <Divider />
               <List>{supervisorListItems}</List>
+            </>
+          )}
+          {this.props.user.role.includes("STUDENT") && (
+            <>
+            <Divider />
+            <List>{studentListItems}</List>
             </>
           )}
         </Drawer>

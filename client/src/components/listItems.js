@@ -5,11 +5,15 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import HomeIcon from '@material-ui/icons/Home';
 import PeopleIcon from '@material-ui/icons/People';
-import BarChartIcon from '@material-ui/icons/BarChart';
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
+import RateReviewIcon from '@material-ui/icons/RateReview';
 import FolderIcon from '@material-ui/icons/Folder';
+import FolderSpecial from '@material-ui/icons/FolderSpecial';
 import { Link } from 'react-router-dom';
+import Badge from '@material-ui/core/Badge';
 
-export const mainListItems = (
+export function mainListItems(numRequests) {
+  return (
   <div>
     <Link to="/" style={{textDecoration: 'none', color: 'black'}}>
     <ListItem button>
@@ -27,16 +31,26 @@ export const mainListItems = (
       <ListItemText primary="Honours Projects" />
     </ListItem>
     </Link>
-    <Link to="/my-project" style={{textDecoration: 'none', color: 'black'}}>
+    <Link to="/supervisors" style={{textDecoration: 'none', color: 'black'}}>
     <ListItem button>
       <ListItemIcon>
-        <FolderIcon />
+        <SupervisorAccountIcon />
       </ListItemIcon>
-      <ListItemText primary="My Project" />
+      <ListItemText primary="Project Supervisors" />
     </ListItem>
     </Link>
-  </div>
-);
+    <Link to="/requests" style={{textDecoration: 'none', color: 'black'}}>
+    <ListItem button>
+      <ListItemIcon>
+      <Badge badgeContent={numRequests} color="primary">
+        <RateReviewIcon />
+      </Badge>  
+      </ListItemIcon>
+      <ListItemText primary="My Requests" />
+    </ListItem>
+    </Link>
+  </div>);
+};
 
 export const adminListItems = (
   <div>
@@ -74,9 +88,23 @@ export const supervisorListItems = (
     <Link to="/supervisor/projects" style={{ textDecoration: 'none', color: 'black' }}>
     <ListItem button>
       <ListItemIcon>
-        <FolderIcon />
+        <FolderSpecial />
       </ListItemIcon>
       <ListItemText primary="My Projects" />
+    </ListItem>
+    </Link>
+  </div>
+);
+
+export const studentListItems = (
+  <div>
+    <ListSubheader inset>Manage Project</ListSubheader>
+    <Link to="/my-project" style={{textDecoration: 'none', color: 'black'}}>
+    <ListItem button>
+      <ListItemIcon>
+        <FolderSpecial />
+      </ListItemIcon>
+      <ListItemText primary="My Project" />
     </ListItem>
     </Link>
   </div>
