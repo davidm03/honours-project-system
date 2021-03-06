@@ -24,10 +24,13 @@ import UpdateIcon from '@material-ui/icons/Update';
 import SendIcon from '@material-ui/icons/Send';
 import CommentIcon from '@material-ui/icons/Comment';
 
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 class MyProject extends Component {
     constructor(props) {
         super(props);
-        this.state = { updateStatusDialog: false };
+        this.state = { updateStatusDialog: false, loading: true, superData: {} };
     }
     handleStatusUpdate = (e) => {
         e.preventDefault();
@@ -48,99 +51,183 @@ class MyProject extends Component {
     }
     handleAddNote = (e) => {
         e.preventDefault();
-        var project = this.props.data.project;
-        const user = this.props.data.user;
-        const note = document.getElementById('txtNote').value;
-        project.activity.push({ action: "note", activity: note });
+        if (this.props.id) {
+            this.handleSupervisorMessage();
+        }
+        else {
+            var project = this.props.data.project;
+            const user = this.props.data.user;
+            const note = document.getElementById('txtNote').value;
+            project.activity.push({ action: "note", activity: note });
+            axios.post(process.env.REACT_APP_SERVER_URL + 'project/update', {
+                _id: project._id,
+                activity: project.activity,
+                studentID: user.userId
+            }).then(res => {
+                if (res.data === true) {
+                    this.props.reloadProject();
+                    document.getElementById('txtNote').value = "";
+                }
+            })
+        }
+    }
+    handleSupervisorMessage = () => {
+        var project = this.state.superData.project;
+        const student = this.state.superData.student;
+        const message = document.getElementById('txtNote').value;
+        project.activity.push({ action: "comment", activity: message });
         axios.post(process.env.REACT_APP_SERVER_URL + 'project/update', {
             _id: project._id,
             activity: project.activity,
-            studentID: user.userId
+            studentID: student._id
         }).then(res => {
             if (res.data === true) {
-                this.props.reloadProject();
+                this.uniqueLoadData();
                 document.getElementById('txtNote').value = "";
             }
         })
     }
+    uniqueLoadData = () => {
+        if (this.props.id) {
+            axios.get(process.env.REACT_APP_SERVER_URL + 'project/view/' + this.props.id)
+            .then(res => {
+                if (res.data) {
+                    var project = res.data;  
+                    axios.get(process.env.REACT_APP_SERVER_URL + 'users/view/' + project.studentID)
+                    .then(res => {
+                        if (res.data) {
+                            var student = res.data; 
+                            axios.get(process.env.REACT_APP_SERVER_URL + 'users/view/' + project.supervisorID)
+                            .then(res => {
+                                if (res.data) {
+                                    var supervisor = res.data;
+                                    var data = this.state.superData; 
+                                    data.project = project;
+                                    data.student = student; 
+                                    data.supervisor = supervisor;
+                                    this.setState({ loading: false, superData: data });
+                                }
+                            })
+                        }
+                    })
+                    
+                }
+            })
+        }
+        else {
+            this.setState({ loading: false });
+        }
+    }
+    componentDidMount() {
+        this.uniqueLoadData();
+    }
     render() {
-        var project;
-        var supervisor;
+        var project = {};
+        var supervisor = {};
+        var student = {}; 
         var activityItems = [];
 
-        if (this.props.data) {
-            project = this.props.data.project;
-            supervisor = this.props.data.supervisor;
+        var studentPOV = false; 
+        if (this.props.data) studentPOV = true;
 
-            for (let index = 0; index < project.activity.length; index++) {
-                const activity = project.activity[index];
-                var listItem; 
-                switch (activity.action) {
-                    case "update":
-                        var text = "Project status has been updated to: " + activity.activity;
-                        listItem = (
-                        <ListItem>
-                        <ListItemIcon>
-                            <UpdateIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary="Status Update"
-                            secondary={text}
-                        />
-                        </ListItem>
-                        );
-                        break;
-                    case "create":
-                        var text = "Project has been initiated.";
-                        listItem = (
-                        <ListItem>
-                        <ListItemIcon>
-                            <CreateNewFolderIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary="Project Created"
-                            secondary={text}
-                        />
-                        </ListItem>
-                        );
-                        break;
-                    case "comment":
-                        listItem = (
-                        <ListItem>
-                        <ListItemIcon>
-                            <Avatar style={{ color: 'primary' }}>{supervisor.first_name.charAt(0).toUppercase()}{supervisor.surname.charAt(0).toUppercase()}</Avatar>
-                        </ListItemIcon>
-                        <ListItemText
-                            primary="Supervisor Comment"
-                            secondary={activity.activity}
-                        />
-                        </ListItem>
-                        );
-                        break;
-                    case "note":
-                        listItem = (
+        if (this.state.loading === false) {
+            if (studentPOV) {
+                project = this.props.data.project;
+                supervisor = this.props.data.supervisor;
+            }
+            else {
+                student = this.state.superData.student;
+                project = this.state.superData.project;
+                supervisor = this.state.superData.supervisor;
+            }
+                
+                for (let index = 0; index < project.activity.length; index++) {
+                    const activity = project.activity[index];
+                    var listItem; 
+                    switch (activity.action) {
+                        case "update":
+                            var text = "Project status has been updated to: " + activity.activity;
+                            listItem = (
                             <ListItem>
                             <ListItemIcon>
-                                <CommentIcon/>
+                                <UpdateIcon />
                             </ListItemIcon>
                             <ListItemText
-                                primary="Note Added By Student"
+                                primary="Status Update"
+                                secondary={text}
+                            />
+                            </ListItem>
+                            );
+                            break;
+                        case "create":
+                            var text = "Project has been initiated.";
+                            listItem = (
+                            <ListItem>
+                            <ListItemIcon>
+                                <CreateNewFolderIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Project Created"
+                                secondary={text}
+                            />
+                            </ListItem>
+                            );
+                            break;
+                        case "comment":
+                            listItem = (
+                            <ListItem>
+                            <ListItemIcon>
+                                <Avatar style={{ backgroundColor: 'blue' }}>{supervisor.first_name.charAt(0).toUpperCase()}{supervisor.surname.charAt(0).toUpperCase()}</Avatar>
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Supervisor Comment"
                                 secondary={activity.activity}
                             />
                             </ListItem>
                             );
-                        break;
-                    default:
-                        break;
-                }
-                activityItems.push(listItem);
-            }
+                            break;
+                        case "note":
+                            listItem = (
+                                <ListItem>
+                                <ListItemIcon>
+                                    <CommentIcon/>
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary="Note Added By Student"
+                                    secondary={activity.activity}
+                                />
+                                </ListItem>
+                                );
+                            break;
+                        default:
+                            break;
+                    }
+                    activityItems.push(listItem);
+                }   
+        }
+        else {
+            return <Backdrop open={true}>
+                        <CircularProgress color="inherit" />
+                    </Backdrop>
         }
 
         return ( 
             <div>
-                <h1>My Project</h1>
-                <p>View all information about your selected honours project. From here you can update the status of your project for your supervisor to see or add activity notes.</p>
+                {studentPOV
+                    ? (
+                    <>
+                    <h1>My Project</h1>
+                    <p>View all information about your selected honours project. From here you can update the status of your project for your supervisor to see or add activity notes.</p>
+                    </>
+                    )
+                    : (
+                    <>
+                    <h1>{student.first_name} {student.surname}'s Project</h1>
+                    <p>View all information about {student.first_name} {student.surname}'s honours project. You can respond to student notes located in the recent activity window below.</p>
+                    </>
+                    )
+                }              
+                
                 {!project && (
                     <Alert severity="warning" style={{ width: "100%" }}>You have not selected an Honours Project! - <Link to="/projects">You can either select a project from the system or request your own.</Link></Alert>
                 )}
@@ -189,9 +276,11 @@ class MyProject extends Component {
                             Current Status: {project.status}{" "}
                         </Typography>
                     </CardContent>
-                    <CardActions style={{justifyContent: 'center'}}>
+                    {studentPOV &&
+                    (<CardActions style={{justifyContent: 'center'}}>
                         <Button variant="contained" color={'primary'} onClick={()=>this.setState({ updateStatusDialog: true })}>Update Status</Button>
                     </CardActions>
+                    )}
                 </Card>
 
                 <Card style={{ marginTop: 20 }}>
