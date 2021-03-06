@@ -95,21 +95,18 @@ class AdminProjects extends Component {
             <Grid container direction="row">
                 <Grid item xs={3}>
                     <AddProject 
-                    loadProjects={this.loadProjects} 
-                    setSuccess={(message)=>this.setState({successMessage: message})} 
-                    setError={(message)=>this.setState({errorMessage: message})} 
+                    loadProjects={this.props.loadProjects}  
                     supervisors={this.state.supervisors} />
                     <IconButton onClick={()=>{
-                        this.loadProjects();
+                        this.props.loadProjects();
                         this.setState({ successMessage: "Projects refreshed!" });
                     }}>
                         <RefreshIcon />
                     </IconButton>
                     {this.state.selectedProjects.length > 0 && (
                         <DeleteProjects 
-                        loadProjects={this.loadProjects} 
+                        loadProjects={this.props.loadProjects} 
                         selectedProjects={this.state.selectedProjects} 
-                        setSuccess={(message)=>this.setState({successMessage: message})}
                         clearSelected={()=>this.setState({selectedProjects: []})}
                         />
                     )}
@@ -142,16 +139,6 @@ class AdminProjects extends Component {
                 }}
                 />
             </div>
-            <Snackbar open={this.state.successMessage} autoHideDuration={6000} onClose={()=>{this.setState({ successMessage: null });}}>
-                <Alert onClose={()=>{this.setState({ successMessage: null });}} severity="success">
-                {this.state.successMessage}
-                </Alert>
-            </Snackbar>
-            <Snackbar open={this.state.errorMessage} autoHideDuration={6000} onClose={()=>{this.setState({ errorMessage: null });}}>
-                <Alert onClose={()=>{this.setState({ errorMessage: null });}} severity="error">
-                {this.state.errorMessage}
-                </Alert>
-            </Snackbar>
         </div> 
         );
     }

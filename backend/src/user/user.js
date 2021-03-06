@@ -35,7 +35,7 @@ exports.findUserById = function (id) {
 
 exports.getStudentByStudentId = function (id) {
     return new Promise((resolve, reject) => {
-        User.findOne({ studentID: id }, function (err, user) {
+        User.findOne({ userType: "Student", studentID: id }, function (err, user) {
             if (err) {
                 console.log('An error has been encounted');
                 reject(err);

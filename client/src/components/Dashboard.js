@@ -31,6 +31,7 @@ import Supervisors from './Supervisors';
 import MyRequests from './MyRequests';
 import MyProject from './MyProject';
 import SupervisorStudents from './SupervisorStudents';
+import SupervisorProjects from './SupervisorProjects';
 
 const drawerWidth = 240;
 
@@ -178,6 +179,7 @@ class Dashboard extends Component {
           data.user = this.props.user;
           data.projects = supervisorProjects;
           this.setState({ allProjects: res.data, supervisorData: data });
+          this.loadStudents();
         }
     });
   }
@@ -211,9 +213,6 @@ class Dashboard extends Component {
     this.loadSupervisors();
     this.loadProjects();
     this.loadRequests();
-    if (this.props.user.role.includes("SUPERVISOR")) {
-      this.loadStudents();
-    }
   }
   render() {
   if (this.state.redirect) {
@@ -293,8 +292,8 @@ class Dashboard extends Component {
             <Switch>
               <ProtectedRoute path="/manage/users" component={()=><Users />} admin={true} />
               <ProtectedRoute path="/view/user/:id" component={(props)=><ViewUser {...props} />} admin={true} />
-              <ProtectedRoute path="/manage/projects" component={()=><AdminProjects data={{projects: this.state.allProjects, supervisors: this.state.supervisors}}/>} admin={true} />
-              <ProtectedRoute path="/view/project/:id" component={(props)=><ViewProject {...props} />} admin={true} />
+              <ProtectedRoute path="/manage/projects" component={()=><AdminProjects data={{projects: this.state.allProjects, supervisors: this.state.supervisors}} loadProjects={this.loadProjects}/>} admin={true} />
+              <ProtectedRoute path="/view/project/:id" component={(props)=><ViewProject {...props} />} supervisor={true} />
               
               <ProtectedRoute path="/projects" component={()=><Projects projects={this.state.allProjects} supervisors={this.state.supervisors}/>} />
               <ProtectedRoute path="/project/:id" component={(props)=><ExpandProject {...props} user={this.props.user} data={{projects: this.state.allProjects, supervisors: this.state.supervisors}} reloadProjects={this.loadProjects}/>} />
@@ -303,7 +302,9 @@ class Dashboard extends Component {
               <ProtectedRoute path="/requests" component={(props)=><MyRequests {...props} requests={this.state.myRequests} user={this.props.user} loadRequests={this.loadRequests}/>} />
               <ProtectedRoute path="/my-project" component={(props)=><MyProject {...props} data={this.state.myProjectData} reloadProject={this.loadProjects}/>} />
 
-              <ProtectedRoute path="/supervisor/students" component={(props)=><SupervisorStudents data={this.state.supervisorData}/>} supervisor={true}/>
+              <ProtectedRoute path="/supervisor/students" component={()=><SupervisorStudents data={this.state.supervisorData}/>} supervisor={true}/>
+              <ProtectedRoute path="/supervisor/projects" component={()=><SupervisorProjects data={this.state.supervisorData} reloadProjects={this.loadProjects}/>} supervisor={true}/>
+              <ProtectedRoute path="/supervisor/project/:id" component={(props)=><MyProject {...props} reloadProject={this.loadProjects} supervisor={true}/>} />
             </Switch>
           </Container>
         </main>

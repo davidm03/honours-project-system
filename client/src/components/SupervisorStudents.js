@@ -45,7 +45,7 @@ class SupervisorStudents extends Component {
                 columns={columns} 
                 pageSize={10}
                 />
-            </div>
+                </div>
             </div>
         );
     }

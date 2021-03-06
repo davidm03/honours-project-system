@@ -56,7 +56,6 @@ class AddProject extends Component {
             if (res.data===true) {
                 this.props.loadProjects();
                 this.toggleAddProjectDialog();
-                this.props.setSuccess("Project successfully added.");
             }
             else if (res.data.error) {
                 this.setState({ errorStudent: res.data.message });
@@ -178,7 +177,6 @@ class DeleteProjects extends Component {
                 this.props.loadProjects();
                 this.toggleDeleteProjectsDialog();
                 this.props.clearSelected();
-                this.props.setSuccess("Projects successfully deleted.");
             }
             else {
                 this.toggleDeleteProjectsDialog();
