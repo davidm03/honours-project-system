@@ -12,23 +12,33 @@ router.get('/', async function(req, res, next) {
 /* POST add a new project */
 router.post('/add', async function(req, res, next) {
   var project = req.body;
-  var student = await userDAL.getStudentByStudentId(project.studentID);
-  if (student!=null) {
-    var success = await projectDAL.addProject(project.title, project.description, project.topic_area, project.available, project.status, student._id, project.supervisorID);
-    if (success===true) {
-        res.send(true);
-    }
+  if (project.noStudent) {
+    var success = await projectDAL.addProject(project.title, project.description, project.topic_area, project.available, project.status, null, project.supervisorID);
+      if (success===true) {
+          res.send(true);
+      }
   }
   else {
-    res.send({error: "student", message: "Student ID does not exist."})
+    var student = await userDAL.getStudentByStudentId(project.studentID);
+    if (student!=null) {
+      var success = await projectDAL.addProject(project.title, project.description, project.topic_area, project.available, project.status, student._id, project.supervisorID);
+      if (success===true) {
+          res.send(true);
+      }
+    }
+    else {
+      res.send({error: "student", message: "Student ID does not exist."})
+    }
   }
-  
 });
 
 /* POST update a project */
 router.post('/update', async function(req, res, next) {
     var updatedProject = req.body;
-    var student = await userDAL.getStudentByStudentId(updatedProject.studentID);
+    var student = await userDAL.findUserById(updatedProject.studentID);
+    if (!student) {
+      student = await userDAL.getStudentByStudentId(updatedProject.studentID);
+    }
     if (student!=null) {
       updatedProject.studentID = student._id;
       var success = await projectDAL.updateProject(updatedProject._id, updatedProject);
@@ -63,7 +73,6 @@ router.get('/view/:id', async function(req, res, next) {
   else {
     res.send(false);
   }
-
 });
 
 module.exports = router;

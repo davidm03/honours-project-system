@@ -35,7 +35,7 @@ exports.findUserById = function (id) {
 
 exports.getStudentByStudentId = function (id) {
     return new Promise((resolve, reject) => {
-        User.findOne({ studentID: id }, function (err, user) {
+        User.findOne({ userType: "Student", studentID: id }, function (err, user) {
             if (err) {
                 console.log('An error has been encounted');
                 reject(err);
@@ -79,6 +79,28 @@ exports.getSupervisors = function () {
                 }
                 resolve(supervisors);
                 console.log('Success: All supervisors resolved.');
+            }
+        });
+    })
+}
+
+exports.getStudents = function () {
+    return new Promise((resolve, reject) => {
+        User.find({}, function (err, users) {
+            if (err) {
+                reject(err);
+                console.log('Error: Unable to resolve all students.');
+            }
+            else {
+                var students = [];
+                for (let index = 0; index < users.length; index++) {
+                    const user = users[index];
+                    if (user.role.includes("STUDENT")) {
+                        students.push(user);
+                    }
+                }
+                resolve(students);
+                console.log('Success: All students resolved.');
             }
         });
     })

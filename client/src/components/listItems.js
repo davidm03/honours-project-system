@@ -5,11 +5,15 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import HomeIcon from '@material-ui/icons/Home';
 import PeopleIcon from '@material-ui/icons/People';
-import BarChartIcon from '@material-ui/icons/BarChart';
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
+import RateReviewIcon from '@material-ui/icons/RateReview';
 import FolderIcon from '@material-ui/icons/Folder';
+import FolderSpecial from '@material-ui/icons/FolderSpecial';
 import { Link } from 'react-router-dom';
+import Badge from '@material-ui/core/Badge';
 
-export const mainListItems = (
+export function mainListItems(numRequests) {
+  return (
   <div>
     <Link to="/" style={{textDecoration: 'none', color: 'black'}}>
     <ListItem button>
@@ -19,30 +23,34 @@ export const mainListItems = (
       <ListItemText primary="Home" />
     </ListItem>
     </Link>
-    <Link to="/users" style={{textDecoration: 'none', color: 'black'}}>
-    <ListItem button>
-      <ListItemIcon>
-        <PeopleIcon />
-      </ListItemIcon>
-      <ListItemText primary="Users" />
-    </ListItem>
-    </Link>
     <Link to="/projects" style={{textDecoration: 'none', color: 'black'}}>
     <ListItem button>
       <ListItemIcon>
         <FolderIcon />
       </ListItemIcon>
-      <ListItemText primary="Projects" />
+      <ListItemText primary="Honours Projects" />
     </ListItem>
     </Link>
+    <Link to="/supervisors" style={{textDecoration: 'none', color: 'black'}}>
     <ListItem button>
       <ListItemIcon>
-        <BarChartIcon />
+        <SupervisorAccountIcon />
       </ListItemIcon>
-      <ListItemText primary="Reports" />
+      <ListItemText primary="Project Supervisors" />
     </ListItem>
-  </div>
-);
+    </Link>
+    <Link to="/requests" style={{textDecoration: 'none', color: 'black'}}>
+    <ListItem button>
+      <ListItemIcon>
+      <Badge badgeContent={numRequests} color="primary">
+        <RateReviewIcon />
+      </Badge>  
+      </ListItemIcon>
+      <ListItemText primary="My Requests" />
+    </ListItem>
+    </Link>
+  </div>);
+};
 
 export const adminListItems = (
   <div>
@@ -61,6 +69,42 @@ export const adminListItems = (
         <FolderIcon />
       </ListItemIcon>
       <ListItemText primary="Projects" />
+    </ListItem>
+    </Link>
+  </div>
+);
+
+export const supervisorListItems = (
+  <div>
+    <ListSubheader inset>Project Supervision</ListSubheader>
+    <Link to="/supervisor/students" style={{ textDecoration: 'none', color: 'black' }}>
+    <ListItem button>
+      <ListItemIcon>
+        <PeopleIcon />
+      </ListItemIcon>
+      <ListItemText primary="My Students" />
+    </ListItem>
+    </Link>
+    <Link to="/supervisor/projects" style={{ textDecoration: 'none', color: 'black' }}>
+    <ListItem button>
+      <ListItemIcon>
+        <FolderSpecial />
+      </ListItemIcon>
+      <ListItemText primary="My Projects" />
+    </ListItem>
+    </Link>
+  </div>
+);
+
+export const studentListItems = (
+  <div>
+    <ListSubheader inset>Manage Project</ListSubheader>
+    <Link to="/my-project" style={{textDecoration: 'none', color: 'black'}}>
+    <ListItem button>
+      <ListItemIcon>
+        <FolderSpecial />
+      </ListItemIcon>
+      <ListItemText primary="My Project" />
     </ListItem>
     </Link>
   </div>

@@ -8,6 +8,7 @@ let Project = new Schema({
     topic_area: { type: String },
     available: { type: Boolean },
     status: { type: String },
+    activity: [{ action: String, activity: String }],
     supervisorID: { type: Schema.Types.ObjectId, ref: 'User' }
 });
 

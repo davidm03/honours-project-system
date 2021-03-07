@@ -14,6 +14,12 @@ router.get('/supervisors', async function(req, res, next) {
   res.send(users);
 });
 
+/* GET students listing. */
+router.get('/students', async function(req, res, next) {
+  var users = await userDAL.getStudents();
+  res.send(users);
+});
+
 /* POST register new user account */
 router.post('/register', async function(req, res, next) {
   var user = req.body;

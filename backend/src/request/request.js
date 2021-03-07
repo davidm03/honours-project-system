@@ -1,13 +1,15 @@
 const Request = require('./request.model');
+const projectDAL = require('../project/project');
 
-exports.createRequest = function (student, supervisor, idea, description) {
+exports.createRequest = function (title, description, topic_area, student, supervisor) {
     return new Promise((resolve, reject) => {
         var newRequest = new Request({
-            studentID: student.id_,
-            supervisorID: supervisor.id_,
-            date: new Date(),
-            project_idea: idea,
-            description: description,
+            studentID: student._id,
+            supervisorID: supervisor._id,
+            date: new Date() / 1000,
+            title,
+            description,
+            topic_area,
             status: 'Pending'
         });
         newRequest.save(function (err) {
@@ -21,15 +23,31 @@ exports.createRequest = function (student, supervisor, idea, description) {
     });
 }
 
-exports.getRequest = function (id) {
+exports.getStudentRequests = function (id) {
     return new Promise((resolve, reject) => {
-        Request.findOne({ _id: id }, function (err, request) {
+        Request.find({ studentID: id }, function (err, requests) {
             if (err) {
                 console.log('Error: Request not found.');
                 reject(err);
             }
             else {
-                resolve(request);
+                resolve(requests);
+            }
+        }).catch(function (err) {
+            throw (err)
+        });
+    });
+};
+
+exports.getSupervisorRequests = function (id) {
+    return new Promise((resolve, reject) => {
+        Request.find({ supervisorID: id }, function (err, requests) {
+            if (err) {
+                console.log('Error: Request not found.');
+                reject(err);
+            }
+            else {
+                resolve(requests);
             }
         }).catch(function (err) {
             throw (err)
@@ -38,7 +56,6 @@ exports.getRequest = function (id) {
 };
 
 exports.updateRequest = function(id, update) {
-    //var update = { status: newStatus };
     return new Promise((resolve, reject) => {
         Request.findByIdAndUpdate(id, update, function (err, request) {
             if (err) {
@@ -54,6 +71,46 @@ exports.updateRequest = function(id, update) {
         });
     });
 };
+
+exports.acceptRequest = function(id) {
+    return new Promise((resolve, reject) => {
+        Request.findByIdAndUpdate(id, { status: "Accepted" }, function (err, request) {
+            if (err) {
+                reject(err);
+                console.log('Error: Failed to accept request.');
+            }
+            else {
+                console.log('Success: Request status accepted.');
+                var addProject = projectDAL.addProject(request.title, request.description, request.topic_area, false, "", request.studentID, request.supervisorID);
+                if (addProject) {
+                    resolve(true);
+                }
+                else {
+                    resolve(false);
+                }
+            }
+        }).catch(function (err) {
+            console.error(err);
+        });
+    });
+}
+
+exports.declineRequest = function(id) {
+    return new Promise((resolve, reject) => {
+        Request.findByIdAndUpdate(id, { status: "Declined" }, function (err, request) {
+            if (err) {
+                reject(err);
+                console.log('Error: Failed to decline request.');
+            }
+            else {
+                console.log('Success: Request status declined.');
+                resolve(true);
+            }
+        }).catch(function (err) {
+            console.error(err);
+        });
+    });
+}
 
 exports.deleteRequest = function(id) {
     Request.findByIdAndDelete(id, function (err, doc) {

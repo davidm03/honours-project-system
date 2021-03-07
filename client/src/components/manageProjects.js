@@ -41,7 +41,7 @@ class AddProject extends Component {
 
         if (this.state.selectedAvailability==="No") available = false;
         if (document.getElementById('addProjectStatus').value!==null) status = document.getElementById('addProjectStatus').value;
-        if (document.getElementById('addProjectStudentID').value!==null) studentID = document.getElementById('addProjectStudentID').value;
+        if (document.getElementById('addProjectStudentID').value!=="") studentID = document.getElementById('addProjectStudentID').value;
         
         axios.post(process.env.REACT_APP_SERVER_URL + "project/add", {
             title: title,
@@ -56,7 +56,6 @@ class AddProject extends Component {
             if (res.data===true) {
                 this.props.loadProjects();
                 this.toggleAddProjectDialog();
-                this.props.setSuccess("Project successfully added.");
             }
             else if (res.data.error) {
                 this.setState({ errorStudent: res.data.message });
@@ -178,7 +177,6 @@ class DeleteProjects extends Component {
                 this.props.loadProjects();
                 this.toggleDeleteProjectsDialog();
                 this.props.clearSelected();
-                this.props.setSuccess("Projects successfully deleted.");
             }
             else {
                 this.toggleDeleteProjectsDialog();

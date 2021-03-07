@@ -8,6 +8,7 @@ exports.addProject = function (title, description, topic_area, available, status
             topic_area,
             available,
             status,
+            activity: [{ action: "create", activity: "Project created"}],
             studentID,
             supervisorID
         });
@@ -54,9 +55,8 @@ exports.getAllProjects = function () {
 }
 
 exports.updateProject = function(id, update) {
-    //var update = { status: newStatus };
-
     return new Promise((resolve, reject) => {
+        console.log("update!", update);
         Project.findByIdAndUpdate(id, update, function (err, project) {
             if (err) {
                 reject(err);

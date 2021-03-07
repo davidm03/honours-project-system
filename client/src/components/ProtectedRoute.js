@@ -21,6 +21,10 @@ class ProtectedRoute extends Component {
                 else if (this.props.admin && !res.data.role.includes("MODULE_LEADER")) {
                     this.setState({ loading: false });
                 }
+                //check if user is required to be supervisor for route
+                else if (this.props.supervisor && !res.data.role.includes("SUPERVISOR")) {
+                    this.setState({ loading: false });
+                }
                 //grant access
                 else {
                     this.setState({ isTokenValidated: true, user: res.data, loading: false });
