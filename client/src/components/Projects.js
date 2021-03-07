@@ -47,58 +47,60 @@ class Projects extends Component {
                 const p = projects[index];
                 var supervisor = this.state.supervisors.find(s => s._id === p.supervisorID);
 
-                if (this.state.searchText) {
-                    var match = false;
-                    if (p.title.toLowerCase().indexOf(this.state.searchText.toLowerCase()) > -1) {
-                        match++;
-                    }
-                    else if (p.description.toLowerCase().indexOf(this.state.searchText.toLowerCase()) > -1) {
-                        match++;
-                    }
-                    else if (p.topic_area.toLowerCase().indexOf(this.state.searchText.toLowerCase()) > -1) {
-                        match++;
-                    }
-                    
-                    if (match && !this.state.sortBySupervisor) {
-                        pushProject++; 
-                    }
-                    else if (match && this.state.sortBySupervisor) {
-                        if (supervisor._id === this.state.sortBySupervisor) {
-                            pushProject++;
+                if (p.available) {
+                    if (this.state.searchText) {
+                        var match = false;
+                        if (p.title.toLowerCase().indexOf(this.state.searchText.toLowerCase()) > -1) {
+                            match++;
+                        }
+                        else if (p.description.toLowerCase().indexOf(this.state.searchText.toLowerCase()) > -1) {
+                            match++;
+                        }
+                        else if (p.topic_area.toLowerCase().indexOf(this.state.searchText.toLowerCase()) > -1) {
+                            match++;
+                        }
+                        
+                        if (match && !this.state.sortBySupervisor) {
+                            pushProject++; 
+                        }
+                        else if (match && this.state.sortBySupervisor) {
+                            if (supervisor._id === this.state.sortBySupervisor) {
+                                pushProject++;
+                            }
                         }
                     }
-                }
-                else if (this.state.sortBySupervisor) {
-                    if (supervisor._id === this.state.sortBySupervisor) {
-                       pushProject++; 
-                    }                    
-                }
-                else {
-                    pushProject++;
-                }
-            
-                if (pushProject) {
-                    projectDisplay.push(
-                        <Card style={{ marginBottom: 15 }}>
-                        <CardContent>
-                        <h3>{p.title}</h3>
-                        <p>{p.description}</p>
-                        <p>
-                            Topic Area: {p.topic_area} <br/>
-                            Supervisor: {supervisor.first_name} {supervisor.surname}
-                        </p>
-                        </CardContent>
-                        <CardActions>
-                            <Button 
-                            size="small" 
-                            color="primary"
-                            onClick={() => {this.setState({ redirect: "project/" + p._id })}}
-                            >
-                                View Project
-                            </Button>
-                        </CardActions>
-                        </Card>
-                    ); 
+                    else if (this.state.sortBySupervisor) {
+                        if (supervisor._id === this.state.sortBySupervisor) {
+                        pushProject++; 
+                        }                    
+                    }
+                    else {
+                        pushProject++;
+                    }
+                
+                    if (pushProject) {
+                        projectDisplay.push(
+                            <Card style={{ marginBottom: 15 }}>
+                            <CardContent>
+                            <h3>{p.title}</h3>
+                            <p>{p.description}</p>
+                            <p>
+                                Topic Area: {p.topic_area} <br/>
+                                Supervisor: {supervisor.first_name} {supervisor.surname}
+                            </p>
+                            </CardContent>
+                            <CardActions>
+                                <Button 
+                                size="small" 
+                                color="primary"
+                                onClick={() => {this.setState({ redirect: "project/" + p._id })}}
+                                >
+                                    View Project
+                                </Button>
+                            </CardActions>
+                            </Card>
+                        ); 
+                    }
                 }
             }
             var len = supervisors.length, i=0;
