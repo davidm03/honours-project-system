@@ -39,6 +39,7 @@ import Popper from '@material-ui/core/Popper';
 import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import Profile from './Profile';
 
 const drawerWidth = 240;
 
@@ -264,7 +265,7 @@ class Dashboard extends Component {
                     <ClickAwayListener onClickAway={()=>this.setState({ userMenu: false })}>
                       <MenuList autoFocusItem={this.state.userMenu}>
                         <Link to="/profile" style={{ textDecoration: 'none', color: 'black' }}>
-                        <MenuItem>
+                        <MenuItem onClick={()=>this.setState({ userMenu: false })}>
                           <ListItemIcon>
                             <AccountCircleIcon/>
                           </ListItemIcon>
@@ -331,6 +332,7 @@ class Dashboard extends Component {
               <ProtectedRoute path="/project/:id" component={(props)=><ExpandProject {...props} user={this.props.user} data={{projects: this.state.allProjects, supervisors: this.state.supervisors}} reloadProjects={this.loadProjects}/>} />
               <ProtectedRoute path="/supervisors" component={(props)=><Supervisors {...props} user={this.props.user} supervisors={this.state.supervisors}/>} />
               
+              <ProtectedRoute path="/profile" component={()=><Profile user={this.props.user}/>} />
               <ProtectedRoute path="/requests" component={(props)=><MyRequests {...props} requests={this.state.myRequests} user={this.props.user} loadRequests={this.loadRequests}/>} />
               <ProtectedRoute path="/my-project" component={(props)=><MyProject {...props} data={this.state.myProjectData} reloadProject={this.loadProjects}/>} />
 
