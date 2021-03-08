@@ -11,6 +11,7 @@ import FolderIcon from '@material-ui/icons/Folder';
 import FolderSpecial from '@material-ui/icons/FolderSpecial';
 import { Link } from 'react-router-dom';
 import Badge from '@material-ui/core/Badge';
+import BarChartIcon from '@material-ui/icons/BarChart';
 
 export function mainListItems(numRequests) {
   return (
@@ -69,6 +70,14 @@ export const adminListItems = (
         <FolderIcon />
       </ListItemIcon>
       <ListItemText primary="Projects" />
+    </ListItem>
+    </Link>
+    <Link to="/manage/reports" style={{ textDecoration: 'none', color: 'black' }}>
+    <ListItem button>
+      <ListItemIcon>
+        <BarChartIcon />
+      </ListItemIcon>
+      <ListItemText primary="Reports" />
     </ListItem>
     </Link>
   </div>
