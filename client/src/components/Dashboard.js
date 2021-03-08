@@ -9,11 +9,9 @@ import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
-import Badge from '@material-ui/core/Badge';
 import Container from '@material-ui/core/Container';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import { mainListItems, adminListItems, supervisorListItems, studentListItems } from './listItems';
 import { BrowserRouter as Router, Route, Switch, Redirect, Link } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute';
@@ -23,6 +21,9 @@ import ViewUser from './ViewUser';
 import { ViewProject } from './manageProjects';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import Button from '@material-ui/core/Button';
+import MenuItem from '@material-ui/core/MenuItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import Projects from './Projects';
 import axios from 'axios';
@@ -32,6 +33,13 @@ import MyRequests from './MyRequests';
 import MyProject from './MyProject';
 import SupervisorStudents from './SupervisorStudents';
 import SupervisorProjects from './SupervisorProjects';
+import { MenuList } from '@material-ui/core';
+
+import Popper from '@material-ui/core/Popper';
+import Grow from '@material-ui/core/Grow';
+import Paper from '@material-ui/core/Paper';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import Profile from './Profile';
 
 const drawerWidth = 240;
 
@@ -117,7 +125,7 @@ const useStyles = theme => ({
 class Dashboard extends Component {
   constructor(props){
     super(props);
-    this.state = { open: true, redirect: null, allProjects: [], myRequests: [], supervisors: [], supervisorData: {}, myProjectData: [] };
+    this.state = { open: true, userMenu: false, userMenuAnchorEl: false, redirect: null, allProjects: [], myRequests: [], supervisors: [], supervisorData: {}, myProjectData: [] };
   }
   handleLogout = () => {
     localStorage.removeItem('access-token');
@@ -244,19 +252,38 @@ class Dashboard extends Component {
             <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
               Honours Project System
             </Typography>         
-            <Button endIcon={<ArrowDropDownIcon />} style={{color: "white"}}>
+            <Button endIcon={<ArrowDropDownIcon />} style={{color: "white"}} onClick={(e)=>this.setState({ userMenu: true, userMenuAnchorEl: e.currentTarget })}>
               { this.props.user.email }
             </Button>
-            {/* <Link to="/requests" style={{ color: "white" }}>
-            <IconButton color="inherit">
-                <Badge badgeContent={this.state.myRequests.length} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            </Link> */}
-            <IconButton color="inherit" onClick={this.handleLogout}>
-              <ExitToAppIcon />
-            </IconButton>
+            <Popper open={this.state.userMenu} anchorEl={this.state.userMenuAnchorEl} transition disablePortal>
+              {({ TransitionProps, placement }) => (
+                <Grow
+                  {...TransitionProps}
+                  style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+                >
+                  <Paper style={{ minWidth: 200 }}>
+                    <ClickAwayListener onClickAway={()=>this.setState({ userMenu: false })}>
+                      <MenuList autoFocusItem={this.state.userMenu}>
+                        <Link to="/profile" style={{ textDecoration: 'none', color: 'black' }}>
+                        <MenuItem onClick={()=>this.setState({ userMenu: false })}>
+                          <ListItemIcon>
+                            <AccountCircleIcon/>
+                          </ListItemIcon>
+                          Profile
+                        </MenuItem>
+                        </Link>
+                        <MenuItem onClick={this.handleLogout}>
+                          <ListItemIcon>
+                              <ExitToAppIcon/>
+                          </ListItemIcon>
+                          Logout
+                        </MenuItem>
+                      </MenuList>
+                    </ClickAwayListener>
+                  </Paper>
+                </Grow>
+              )}
+            </Popper>
           </Toolbar>
         </AppBar>
         <Drawer
@@ -305,6 +332,7 @@ class Dashboard extends Component {
               <ProtectedRoute path="/project/:id" component={(props)=><ExpandProject {...props} user={this.props.user} data={{projects: this.state.allProjects, supervisors: this.state.supervisors}} reloadProjects={this.loadProjects}/>} />
               <ProtectedRoute path="/supervisors" component={(props)=><Supervisors {...props} user={this.props.user} supervisors={this.state.supervisors}/>} />
               
+              <ProtectedRoute path="/profile" component={()=><Profile user={this.props.user}/>} />
               <ProtectedRoute path="/requests" component={(props)=><MyRequests {...props} requests={this.state.myRequests} user={this.props.user} loadRequests={this.loadRequests}/>} />
               <ProtectedRoute path="/my-project" component={(props)=><MyProject {...props} data={this.state.myProjectData} reloadProject={this.loadProjects}/>} />
 

@@ -10,8 +10,6 @@ let User = new Schema({
     password: { type: String, required: true },
     role: { type: Array },
     last_login: { type: Number }
-    //project: { type: Schema.Types.ObjectId, ref: 'Project'},
-    //supervision_requests: [{ type: Schema.Types.ObjectId, ref: 'Request' }]
 }, options);
 
 module.exports = mongoose.model('User', User);
