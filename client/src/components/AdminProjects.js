@@ -14,6 +14,9 @@ import { Redirect } from 'react-router-dom';
 
 import { AddProject, DeleteProjects } from "./manageProjects";
 
+import { CSVLink } from 'react-csv';
+import GetAppIcon from '@material-ui/icons/GetApp';
+
 class AdminProjects extends Component {
     constructor(props) {
         super(props);
@@ -86,7 +89,14 @@ class AdminProjects extends Component {
                     }); 
                 }                              
             }
-        } 
+        }
+        const headers = [
+            { label: "ProjectID", key: "id" },
+            { label: "Title", key: "title" },
+            { label: "Topic Area", key: "topic_area"},
+            { label: "Project Available?", key: "available" },
+            { label: "SupervisorID", key: "supervisorID" }
+        ]; 
         return ( 
         <div>
             <h1>Manage Projects</h1>
@@ -103,6 +113,9 @@ class AdminProjects extends Component {
                     }}>
                         <RefreshIcon />
                     </IconButton>
+                    <CSVLink data={rows} headers={headers} filename="honours_projects_export.csv">
+                        <IconButton><GetAppIcon/></IconButton>
+                    </CSVLink>
                     {this.state.selectedProjects.length > 0 && (
                         <DeleteProjects 
                         loadProjects={this.props.loadProjects} 
