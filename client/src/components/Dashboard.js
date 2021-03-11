@@ -40,6 +40,7 @@ import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Profile from './Profile';
+import Reports from './Reports';
 
 const drawerWidth = 240;
 
@@ -300,16 +301,16 @@ class Dashboard extends Component {
           </div>
           <Divider />
           <List>{mainListItems(0)}</List>
-          {this.props.user.role.includes("MODULE_LEADER") && (
-            <>
-             <Divider />
-            <List>{adminListItems}</List>
-            </>
-          )}
           {this.props.user.role.includes("SUPERVISOR") && (
             <>
               <Divider />
               <List>{supervisorListItems}</List>
+            </>
+          )}
+          {this.props.user.role.includes("MODULE_LEADER") && (
+            <>
+             <Divider />
+            <List>{adminListItems}</List>
             </>
           )}
           {this.props.user.role.includes("STUDENT") && (
@@ -327,6 +328,7 @@ class Dashboard extends Component {
               <ProtectedRoute path="/view/user/:id" component={(props)=><ViewUser {...props} />} admin={true} />
               <ProtectedRoute path="/manage/projects" component={()=><AdminProjects data={{projects: this.state.allProjects, supervisors: this.state.supervisors}} loadProjects={this.loadProjects}/>} admin={true} />
               <ProtectedRoute path="/view/project/:id" component={(props)=><ViewProject {...props} />} supervisor={true} />
+              <ProtectedRoute path="/manage/reports" component={()=><Reports data={{projects: this.state.allProjects, supervisors: this.state.supervisors}}/>} admin={true}/>
               
               <ProtectedRoute path="/projects" component={()=><Projects projects={this.state.allProjects} supervisors={this.state.supervisors}/>} />
               <ProtectedRoute path="/project/:id" component={(props)=><ExpandProject {...props} user={this.props.user} data={{projects: this.state.allProjects, supervisors: this.state.supervisors}} reloadProjects={this.loadProjects}/>} />

@@ -14,6 +14,9 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import { Redirect } from 'react-router-dom';
 
+import { CSVLink } from 'react-csv';
+import GetAppIcon from '@material-ui/icons/GetApp';
+
 class Users extends Component {
     constructor(props) {
         super(props);
@@ -110,6 +113,14 @@ class Users extends Component {
                 }                              
             }
         }
+        const headers = [
+            { label: "UserID", key: "id" },
+            { label: "Email", key: "email" },
+            { label: "First Name", key: "first_name"},
+            { label: "Surname", key: "surname" },
+            { label: "Role", key: "role" },
+            { label: "Last Login", key: "last_login" }
+        ];
         return ( 
         <>
             <h1>Manage Users</h1>
@@ -124,6 +135,9 @@ class Users extends Component {
                     }}>
                         <RefreshIcon />
                     </IconButton>
+                    <CSVLink data={rows} headers={headers} filename="honours_users_export.csv">
+                        <IconButton><GetAppIcon/></IconButton>
+                    </CSVLink>
                     {this.state.selectedUsers.length > 0 && (
                         <DeleteUsers 
                         loadUsers={this.loadUsers} 
