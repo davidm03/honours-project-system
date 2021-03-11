@@ -16,6 +16,9 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { Redirect } from 'react-router';
 
+import { CSVLink } from 'react-csv';
+import GetAppIcon from '@material-ui/icons/GetApp';
+
 class SupervisorProjects extends Component {
     constructor(props) {
         super(props);
@@ -114,6 +117,12 @@ class SupervisorProjects extends Component {
                 i++;
             }
         } 
+        const headers = [
+            { label: "ProjectID", key: "id" },
+            { label: "Project Title", key: "project" },
+            { label: "Status", key: "status" },
+            { label: "Student", key: "student_name" }
+        ];
         return (
             <div>
                 <h1>My Projects</h1>
@@ -149,6 +158,13 @@ class SupervisorProjects extends Component {
                 />
 
                 <h2>Projects Under Supervision</h2>
+                {rows2.length > 0 && (
+                <Grid container justify="flex-end" style={{ marginBottom: 20 }}>
+                    <CSVLink style={{ textDecoration: 'none' }} data={rows2} headers={headers} filename="honours_projects_export.csv">
+                        <Button variant="contained" color="primary" endIcon={<GetAppIcon/>}>Export Projects</Button>
+                    </CSVLink>
+                </Grid>
+                )}
                 <DataGrid 
                 rows={rows2} 
                 columns={columns2} 

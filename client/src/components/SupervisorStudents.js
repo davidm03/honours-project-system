@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
 import { DataGrid } from '@material-ui/data-grid';
 
+import { CSVLink } from 'react-csv';
+import GetAppIcon from '@material-ui/icons/GetApp';
+import { Button, Grid } from '@material-ui/core';
+
 class SupervisorStudents extends Component {
     constructor(props) {
         super(props);
-        this.state = { selectedStudents: [] }
+        this.state = { selectedStudents: [], downloadData: [], downloadHeaders: [], filename: "" }
     }
     render() {
         const students = this.props.data.students;
@@ -35,11 +39,26 @@ class SupervisorStudents extends Component {
                 i++;
             }
         }
+        const headers = [
+            { label: "StudentID", key: "id" },
+            { label: "First Name", key: "first_name" },
+            { label: "Surname", key: "surname" },
+            { label: "Email", key: "email" },
+            { label: "Project Title", key: "project" },
+            { label: "Last Login", key: "last_login" }
+        ];
         return ( 
             <div>
                 <h1>My Students</h1>
                 <p>View all of the students currently under your supervisor.</p>
                 <div style={{ height: 700, width: '100%' }}>
+                {students.length > 0 && (
+                <Grid container justify="flex-end" style={{ marginBottom: 20 }}>
+                    <CSVLink style={{ textDecoration: 'none' }} data={rows} headers={headers} filename="honours_students_export.csv">
+                        <Button variant="contained" color="primary" endIcon={<GetAppIcon/>}>Export Students</Button>
+                    </CSVLink>
+                </Grid>
+                )}
                 <DataGrid 
                 rows={rows} 
                 columns={columns} 
