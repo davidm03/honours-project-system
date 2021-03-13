@@ -33,7 +33,13 @@ router.post('/register', async function(req, res, next) {
       registered = await userDAL.registerStaff(user.email, user.first_name, user.surname, user.password, user.role, user.topic_area);
     }
     else if (user.role.includes('STUDENT')){
-      registered = await userDAL.registerStudent(user.email, user.first_name, user.surname, user.password, user.role, user.studentID);
+      var existingStudent = await userDAL.getStudentByStudentId(user.studentID); 
+      if (existingStudent) {
+        res.send({error: "studentID", message: "Student ID already exists."});
+      }
+      else {
+        registered = await userDAL.registerStudent(user.email, user.first_name, user.surname, user.password, user.role, user.studentID);
+      }      
     }
     if (registered===true) {
         res.send(true);

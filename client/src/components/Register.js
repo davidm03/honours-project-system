@@ -35,11 +35,14 @@ const useStyles = theme => ({
 class Register extends Component {
     constructor(props){
         super(props);
-        this.state = { redirect: null, usernameError: null, passwordError: null, confPasswordError: null };
+        this.state = { redirect: null, emailError: null, studentIDError: null, passwordError: null, confPasswordError: null };
     }
     handleRegister = (e) => {
         e.preventDefault();
-        var username = document.getElementById('username').value;
+        var email = document.getElementById('email').value;
+        var first_name = document.getElementById('first_name').value;
+        var surname = document.getElementById('surname').value;
+        var studentID = document.getElementById('studentID').value;
         var password = document.getElementById('password').value;
         var confPassword = document.getElementById('confPassword').value;
 
@@ -48,16 +51,23 @@ class Register extends Component {
         }
         else{
             axios.post(process.env.REACT_APP_SERVER_URL + 'users/register', {
-            username: username,
+            email: email,
+            first_name: first_name,
+            surname: surname, 
+            studentID: studentID,
+            role: ["STUDENT"],
             password: password
             })
             .then(res => {
                 if (res.data===true) {
-                    this.setState({redirect: "/"});
+                    this.setState({redirect: "/login"});
                 }
                 else{
-                    if (res.data.error==="username") {
-                        this.setState({usernameError: res.data.message});
+                    if (res.data.error==="email") {
+                        this.setState({ emailError: res.data.message, studentIDError: null });
+                    }
+                    else if (res.data.error==="studentID") {
+                      this.setState({ studentIDError: res.data.message, emailError: null });
                     }
                 }
             })
@@ -77,21 +87,50 @@ class Register extends Component {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Register
+              Student Registration
             </Typography>
             <form className={classes.form} noValidate>
               <TextField
                 variant="outlined"
                 margin="normal"
                 required
-                error={this.state.usernameError}
-                helperText={this.state.usernameError}
+                error={this.state.emailError}
+                helperText={this.state.emailError}
                 fullWidth
-                id="username"
-                label="Username"
-                name="username"
-                autoComplete="username"
+                id="email"
+                label="Email"
+                name="email"
+                autoComplete="email"
                 autoFocus
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="first_name"
+                label="First Name"
+                name="first_name"
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="surname"
+                label="Surname"
+                name="surname"
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="studentID"
+                label="Student ID"
+                name="studentID"
+                error={this.state.studentIDError}
+                helperText={this.state.studentIDError}
               />
               <TextField
                 variant="outlined"
@@ -131,7 +170,7 @@ class Register extends Component {
               </Button>
                 <Grid container justify="center">          
                 <Link href="/login" variant="body2">
-                    {"Already have an account? Sign in!"}
+                    {"Already registered? Sign in!"}
                 </Link>
                 </Grid>
             </form>
