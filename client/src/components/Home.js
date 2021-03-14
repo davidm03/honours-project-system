@@ -4,32 +4,59 @@ import axios from 'axios';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import { Button, Card, CardContent, Grid, Typography } from '@material-ui/core';
+import { Button, Card, CardContent, Divider, Grid, Typography } from '@material-ui/core';
 
 import { List, ListItem, ListItemText } from '@material-ui/core';
 
+import PostAddIcon from '@material-ui/icons/PostAdd';
+
 import { Link } from 'react-router-dom';
+
+import { Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions } from '@material-ui/core';
 
 class Home extends Component {
     constructor(props) {
         super(props);
-        this.state = { loading: true, users: [] }
+        this.state = { loading: true, users: [], announcement: {}, announcementDialog: false }
     }
     loadUsers = () => {
         axios.get(process.env.REACT_APP_SERVER_URL + 'users/').then(res => {
             if (res.data.length > 0) {
-                this.setState({ users: res.data, loading: false  });
+                this.setState({ users: res.data  });
+            }
+        })
+    }
+    loadAnnouncement = () => {
+        axios.get(process.env.REACT_APP_SERVER_URL + 'announcement/').then(res => {
+            if (res.data !== false) {
+                this.setState({ announcement: res.data, loading: false });
+            }
+        })
+    }
+    postAnnouncement = (e) => {
+        e.preventDefault();
+        var message = document.getElementById('txtAnnouncement').value;
+        var id = this.props.data.user.userId; 
+        axios.post(process.env.REACT_APP_SERVER_URL + 'announcement/post', {
+            body: message,
+            staffID: id
+        }).then(res => {
+            if (res.data !== false) {
+                this.loadAnnouncement();
+                this.setState({ announcementDialog: false });
             }
         })
     }
     componentDidMount() {
         this.loadUsers();
+        this.loadAnnouncement();
     }
     render() {
         var users = [], supervisors = [], projects = [], students = [], currentUser = {};
         var availableProjects = 0, projectsOngoing = 0, lastLogin = "";
         var studentProject = "", studentID = "";
         var topicArea = "", supervisorProjectCount = 0, supervisorRequestsCount = 0;
+        var announcement = {};
         if (this.state.loading) {
             return (
                 <Backdrop open={true}>
@@ -46,6 +73,10 @@ class Home extends Component {
             availableProjects = projects.filter(p => p.available).length;
             projectsOngoing = projects.filter(p => !p.available).length; 
             lastLogin = new Date(currentUser.last_login * 1000).toLocaleDateString('en-GB');
+
+            announcement.body = this.state.announcement.message_body;
+            announcement.user = users.find(u => u._id === this.state.announcement.module_leaderID);
+            announcement.date = new Date(this.state.announcement.date * 1000).toLocaleDateString('en-GB');
 
             if (currentUser.userType === "Student") {
                 studentID = currentUser.studentID; 
@@ -136,11 +167,47 @@ class Home extends Component {
                         <Card>
                             <CardContent>
                                 <Typography variant="h6" gutterBottom style={{ textAlign: 'center', fontWeight: 'bold'}}>Latest Announcement</Typography>
-                                <Typography variant="body1">Welcome to the new Honours Project system. Make sure to select your project before 11/03/2021!</Typography>
+                                <Typography style={{ marginTop: 30, marginBottom: 10 }} variant="body1">{announcement.body}</Typography>
+                                <Divider/>
+                                <Typography style={{ marginTop: 10 }}variant="subtitle2">Posted by: {announcement.user.first_name} {announcement.user.surname} | {announcement.date}</Typography>
+                                {currentUser.role.includes("MODULE_LEADER") && (
+                                <center>
+                                    <Button onClick={()=>this.setState({announcementDialog: true })} style={{ marginTop: 30 }} variant="contained" color="primary" endIcon={<PostAddIcon/>}>Post New Annoucement</Button>
+                                </center>
+                                )}
                             </CardContent>
                         </Card>
                     </Grid>
                 </Grid>
+
+                <Dialog open={this.state.announcementDialog} onClose={()=>this.setState({ announcementDialog: false })}>
+                        <DialogTitle id="form-dialog-title">Post New Announcement</DialogTitle>
+                        <form onSubmit={this.postAnnouncement}>
+                        <DialogContent>
+                        <DialogContentText>
+                            Enter your message below that you wish to announce to all users on the Home screen. 
+                        </DialogContentText>
+                        <TextField
+                            margin="dense"
+                            id="txtAnnouncement"
+                            label="Message"
+                            fullWidth
+                            multiline
+                            rows={3}
+                            required
+                            variant="outlined"
+                        />        
+                        </DialogContent>
+                        <DialogActions>
+                        <Button onClick={()=>this.setState({ announcementDialog: false })} color="primary">
+                            Cancel
+                        </Button>
+                        <Button type="submit" color="primary">
+                            Post
+                        </Button> 
+                        </DialogActions>
+                        </form>
+                    </Dialog>
             </div>
         );
     }
