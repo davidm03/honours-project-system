@@ -11,13 +11,13 @@ import { List, ListItem, ListItemText } from '@material-ui/core';
 import PostAddIcon from '@material-ui/icons/PostAdd';
 
 import { Link } from 'react-router-dom';
-
+import Alert from '@material-ui/lab/Alert';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions } from '@material-ui/core';
 
 class Home extends Component {
     constructor(props) {
         super(props);
-        this.state = { loading: true, users: [], announcement: {}, announcementDialog: false }
+        this.state = { loading: true, users: [], announcement: null, announcementDialog: false }
     }
     loadUsers = () => {
         axios.get(process.env.REACT_APP_SERVER_URL + 'users/').then(res => {
@@ -30,6 +30,9 @@ class Home extends Component {
         axios.get(process.env.REACT_APP_SERVER_URL + 'announcement/').then(res => {
             if (res.data !== false) {
                 this.setState({ announcement: res.data, loading: false });
+            }
+            else {
+                this.setState({ loading: false });
             }
         })
     }
@@ -56,7 +59,6 @@ class Home extends Component {
         var availableProjects = 0, projectsOngoing = 0, lastLogin = "";
         var studentProject = "", studentID = "";
         var topicArea = "", supervisorProjectCount = 0, supervisorRequestsCount = 0;
-        var announcement = {};
         if (this.state.loading) {
             return (
                 <Backdrop open={true}>
@@ -74,9 +76,6 @@ class Home extends Component {
             projectsOngoing = projects.filter(p => !p.available).length; 
             lastLogin = new Date(currentUser.last_login * 1000).toLocaleDateString('en-GB');
 
-            announcement.body = this.state.announcement.message_body;
-            announcement.user = users.find(u => u._id === this.state.announcement.module_leaderID);
-            announcement.date = new Date(this.state.announcement.date * 1000).toLocaleDateString('en-GB');
 
             if (currentUser.userType === "Student") {
                 studentID = currentUser.studentID; 
@@ -167,9 +166,18 @@ class Home extends Component {
                         <Card>
                             <CardContent>
                                 <Typography variant="h6" gutterBottom style={{ textAlign: 'center', fontWeight: 'bold'}}>Latest Announcement</Typography>
-                                <Typography style={{ marginTop: 30, marginBottom: 10 }} variant="body1">{announcement.body}</Typography>
-                                <Divider/>
-                                <Typography style={{ marginTop: 10 }}variant="subtitle2">Posted by: {announcement.user.first_name} {announcement.user.surname} | {announcement.date}</Typography>
+                                {this.state.announcement ? (
+                                    <>
+                                    <Typography style={{ marginTop: 30, marginBottom: 10 }} variant="body1">{this.state.announcement.message_body}</Typography>
+                                    <Divider/>
+                                    <Typography style={{ marginTop: 10 }}variant="subtitle2">{this.state.announcement.date}</Typography>
+                                    </>
+                                ) : (
+                                    <Alert variant="outlined" severity="info">
+                                        No Announcements Available - Please Check Back Later.
+                                    </Alert>
+                                )}
+                                
                                 {currentUser.role.includes("MODULE_LEADER") && (
                                 <center>
                                     <Button onClick={()=>this.setState({announcementDialog: true })} style={{ marginTop: 30 }} variant="contained" color="primary" endIcon={<PostAddIcon/>}>Post New Annoucement</Button>
