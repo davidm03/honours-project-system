@@ -15,6 +15,7 @@ router.post('/add', async function(req, res, next) {
   if (project.noStudent) {
     var success = await projectDAL.addProject(project.title, project.description, project.topic_area, project.available, project.status, null, project.supervisorID);
       if (success===true) {
+          
           res.send(true);
       }
   }

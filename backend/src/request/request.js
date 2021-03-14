@@ -1,5 +1,6 @@
 const Request = require('./request.model');
 const projectDAL = require('../project/project');
+const Staff = require('../user/staff.model');
 
 exports.createRequest = function (title, description, topic_area, student, supervisor) {
     return new Promise((resolve, reject) => {
@@ -17,7 +18,19 @@ exports.createRequest = function (title, description, topic_area, student, super
                 reject(err);
             }
             else {
-                resolve(true);
+                //find supervisor and update discriminator request collection
+                var updatedRequests = supervisor.supervision_requests;
+                updatedRequests.push(newRequest._id); 
+                Staff.findByIdAndUpdate(supervisor._id, {supervision_requests: updatedRequests}, function (err, user) {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve(true);
+                    }
+                }).catch(function (err) {
+                    console.error(err);
+                });                
             }
         });
     });

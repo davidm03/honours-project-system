@@ -1,4 +1,6 @@
 const Project = require('./project.model');
+const Student = require('../user/student.model');
+const Staff = require('../user/staff.model');
 
 exports.addProject = function (title, description, topic_area, available, status, studentID, supervisorID) {
     return new Promise((resolve, reject) => {
@@ -17,7 +19,20 @@ exports.addProject = function (title, description, topic_area, available, status
                 reject(err);
             }
             else {
-                resolve(true);
+                if (newProject.studentID) {
+                    //update discriminator keys
+                    Student.findByIdAndUpdate(studentID, {project: newProject._id}, function (err, student) {
+                        if (err) {
+                            reject(err);
+                        }
+                    }); 
+                    Staff.findByIdAndUpdate(supervisorID, { "$push": { "projects": newProject._id } }, function (err, supervisor) {
+                        if (err) {
+                            reject(err);
+                        }
+                    });
+                }    
+                resolve(true);            
             }
         });
     });
@@ -56,13 +71,26 @@ exports.getAllProjects = function () {
 
 exports.updateProject = function(id, update) {
     return new Promise((resolve, reject) => {
-        console.log("update!", update);
         Project.findByIdAndUpdate(id, update, function (err, project) {
             if (err) {
                 reject(err);
                 console.log('Error: Failed to update project.');
             }
             else {
+                //if update was to add student ID (I.E Student selects pre-defined project)
+                if (update.studentID) {
+                    //update discriminator keys
+                    Student.findByIdAndUpdate(update.studentID, {project: project._id}, function (err, student) {
+                        if (err) {
+                            reject(err);
+                        }
+                    }); 
+                    Staff.findByIdAndUpdate(project.supervisorID, { "$push": { "projects": project._id } }, function (err, supervisor) {
+                        if (err) {
+                            reject(err);
+                        }
+                    });
+                }
                 resolve(true);
                 console.log('Success: Project status updated.');
             }
@@ -80,6 +108,7 @@ exports.deleteProjects = function(projects) {
             if (err) {
                 return false;
             }
+            console.log(doc); 
         });        
     }
     return true;
