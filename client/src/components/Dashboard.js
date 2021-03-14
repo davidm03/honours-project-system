@@ -41,6 +41,7 @@ import Paper from '@material-ui/core/Paper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Profile from './Profile';
 import Reports from './Reports';
+import Home from './Home';
 
 const drawerWidth = 240;
 
@@ -324,6 +325,7 @@ class Dashboard extends Component {
           <div className={classes.appBarSpacer} />
           <Container maxWidth="lg" className={classes.container}>
             <Switch>
+              <ProtectedRoute path="/home" component={()=><Home data={{ supervisors: this.state.supervisors, projects: this.state.allProjects, user: this.props.user }}/>} />
               <ProtectedRoute path="/manage/users" component={()=><Users />} admin={true} />
               <ProtectedRoute path="/view/user/:id" component={(props)=><ViewUser {...props} />} admin={true} />
               <ProtectedRoute path="/manage/projects" component={()=><AdminProjects data={{projects: this.state.allProjects, supervisors: this.state.supervisors}} loadProjects={this.loadProjects}/>} admin={true} />

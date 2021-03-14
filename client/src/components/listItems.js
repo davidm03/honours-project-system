@@ -16,7 +16,7 @@ import BarChartIcon from '@material-ui/icons/BarChart';
 export function mainListItems(numRequests) {
   return (
   <div>
-    <Link to="/" style={{textDecoration: 'none', color: 'black'}}>
+    <Link to="/home" style={{textDecoration: 'none', color: 'black'}}>
     <ListItem button>
       <ListItemIcon>
         <HomeIcon />

@@ -50,7 +50,7 @@ class Login extends Component {
         .then(res => {
             if (res.data.success) {
               localStorage.setItem('access-token', res.data.token);
-              this.setState({redirect:"/"});
+              this.setState({redirect:"/home"});
             }
             else{
                 if (res.data.error==="email") {
