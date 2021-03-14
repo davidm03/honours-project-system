@@ -55,7 +55,15 @@ exports.getAllUsers = function () {
                 console.log('Error: Unable to resolve all users.');
             }
             else {
-                resolve(users);
+                var outputUsers = [];
+                var len = users.length, i = 0;
+                while (i < len) {
+                    const user = users[i];
+                    user.password = undefined; 
+                    outputUsers.push(user);
+                    i++;
+                }
+                resolve(outputUsers);
                 console.log('Success: All users resolved.');
             }
         });
@@ -73,6 +81,7 @@ exports.getSupervisors = function () {
                 var supervisors = [];
                 for (let index = 0; index < users.length; index++) {
                     const user = users[index];
+                    user.password = undefined;
                     if (user.role.includes("SUPERVISOR")) {
                         supervisors.push(user);
                     }
@@ -95,6 +104,7 @@ exports.getStudents = function () {
                 var students = [];
                 for (let index = 0; index < users.length; index++) {
                     const user = users[index];
+                    user.password = undefined;
                     if (user.role.includes("STUDENT")) {
                         students.push(user);
                     }
@@ -143,9 +153,6 @@ exports.authenticateUser = function (email, password) {
                         }
                     });
                 });
-                /* if (user.password==password) {
-                    resolve(user);
-                } */
             }            
         }).catch(function (err) {
             throw (err)

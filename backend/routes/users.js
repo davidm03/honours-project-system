@@ -72,6 +72,7 @@ router.get('/view/:id', async function(req, res, next) {
   var userID = req.params["id"];
   var user = await userDAL.findUserById(userID);
   if (user) {
+    user.password = undefined;
     res.send(user);
   }
   else {
