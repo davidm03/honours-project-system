@@ -24,6 +24,7 @@ class Home extends Component {
             if (res.data.length > 0) {
                 this.setState({ users: res.data  });
             }
+            this.loadAnnouncement();
         })
     }
     loadAnnouncement = () => {
@@ -52,7 +53,7 @@ class Home extends Component {
     }
     componentDidMount() {
         this.loadUsers();
-        this.loadAnnouncement();
+        //this.loadAnnouncement();
     }
     render() {
         var users = [], supervisors = [], projects = [], students = [], currentUser = {};
@@ -67,6 +68,7 @@ class Home extends Component {
             );
         }
         else {
+            console.log("propsHOME", this.props);
             users = this.state.users;
             currentUser = users.find(u => u._id === this.props.data.user.userId);
             supervisors = this.props.data.supervisors;

@@ -225,6 +225,7 @@ class Dashboard extends Component {
     this.loadRequests();
   }
   render() {
+    console.log("dashboardUSER", this.props.user); 
   if (this.state.redirect) {
    return <Redirect to={this.state.redirect} /> 
   }
