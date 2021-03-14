@@ -1,13 +1,7 @@
 var express = require('express');
-const { request } = require('../app.js');
 var router = express.Router();
 var requestDAL = require('../src/request/request.js');
 var userDAL = require('../src/user/user.js');
-
-/* GET requests listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
 
 /* POST create a new request */
 router.post('/create', async function(req, res, next) {
