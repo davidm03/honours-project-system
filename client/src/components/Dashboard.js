@@ -207,13 +207,7 @@ class Dashboard extends Component {
       axios.get(process.env.REACT_APP_SERVER_URL + 'requests/supervisor/' + user.userId)
       .then(res => {
         if (res.data) {
-          for (let index = 0; index < res.data.length; index++) {
-            const request = res.data[index];
-            if (request.status === 'Pending') {
-              requests.push(request);
-            }
-          }
-          this.setState({ myRequests: requests });
+          this.setState({ myRequests: res.data });
         }
       });
     }

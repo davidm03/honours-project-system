@@ -5,14 +5,14 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
-
+import { Tabs, Tab } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import { Link } from 'react-router-dom';
 
 class MyRequests extends Component {
     constructor(props) {
         super(props);
-        this.state = { loading: true, userData: [] }
+        this.state = { loading: true, userData: [], tabValue: 0 }
     }
     handleRequestAction = (id, action) => {
         axios.post(process.env.REACT_APP_SERVER_URL + 'requests/' + action, {
@@ -48,101 +48,193 @@ class MyRequests extends Component {
             const user = this.props.user;
             const isStudent = user.role.includes("STUDENT");
             const requests = this.props.requests;
-            var displayRequests = [];
+            var pendingRequests = [], acceptedRequests = [], declinedRequests = [];
             
             if (isStudent) {
                 for (let index = 0; index < requests.length; index++) {
                     const req = requests[index];
                     const supervisor = this.state.userData.find(user => user._id === req.supervisorID);
-                    displayRequests.push(
-                        <Card style={{ marginBottom: 15 }}>
-                            <CardContent>
-                            <h3>{req.title}</h3>
-                            <h4>Submitted To: {supervisor.first_name} {supervisor.surname}</h4>
-                            <h4>Contact: {supervisor.email}</h4>
-                            <p>Description of project: {req.description}</p>
-                            </CardContent>
-                            <CardActions>
-                            {req.status === "Pending" && (
-                               <Alert severity="warning" style={{ width: "100%" }}>Request Pending</Alert> 
-                            )}
-                            {req.status === "Accepted" && (
-                               <Alert severity="success" style={{ width: "100%" }}>Request Accepted</Alert> 
-                            )}
-                            {req.status === "Declined" && (
-                               <Alert severity="danger" style={{ width: "100%" }}>Request Declined</Alert> 
-                            )}                            
-                            </CardActions>
-                        </Card>
-                    );  
+                    if (req.status === "Pending") {
+                        pendingRequests.push(
+                            <Card style={{ marginBottom: 15 }}>
+                                <CardContent>
+                                <h3>{req.title}</h3>
+                                <h4>Submitted To: {supervisor.first_name} {supervisor.surname}</h4>
+                                <h4>Contact: {supervisor.email}</h4>
+                                <p>Description of project: {req.description}</p>
+                                </CardContent>
+                                <CardActions>
+                                {req.status === "Pending" && (
+                                   <Alert severity="warning" style={{ width: "100%" }}>Request Pending</Alert> 
+                                )}
+                                {req.status === "Accepted" && (
+                                   <Alert severity="success" style={{ width: "100%" }}>Request Accepted</Alert> 
+                                )}
+                                {req.status === "Declined" && (
+                                   <Alert severity="danger" style={{ width: "100%" }}>Request Declined</Alert> 
+                                )}                            
+                                </CardActions>
+                            </Card>  
+                        );  
+                    }
+                    else if (req.status === "Accepted") {
+                        acceptedRequests.push(
+                            <Card style={{ marginBottom: 15 }}>
+                                <CardContent>
+                                <h3>{req.title}</h3>
+                                <h4>Submitted To: {supervisor.first_name} {supervisor.surname}</h4>
+                                <h4>Contact: {supervisor.email}</h4>
+                                <p>Description of project: {req.description}</p>
+                                </CardContent>
+                                <CardActions>
+                                {req.status === "Pending" && (
+                                   <Alert variant="outlined" severity="warning" style={{ width: "100%" }}>Request Pending</Alert> 
+                                )}
+                                {req.status === "Accepted" && (
+                                   <Alert variant="outlined" severity="success" style={{ width: "100%" }}>Request Accepted</Alert> 
+                                )}
+                                {req.status === "Declined" && (
+                                   <Alert variant="outlined" severity="danger" style={{ width: "100%" }}>Request Declined</Alert> 
+                                )}                            
+                                </CardActions>
+                            </Card>  
+                        );  
+                    }
+                    else {
+                        declinedRequests.push(
+                            <Card style={{ marginBottom: 15 }}>
+                                <CardContent>
+                                <h3>{req.title}</h3>
+                                <h4>Submitted To: {supervisor.first_name} {supervisor.surname}</h4>
+                                <h4>Contact: {supervisor.email}</h4>
+                                <p>Description of project: {req.description}</p>
+                                </CardContent>
+                                <CardActions>
+                                {req.status === "Pending" && (
+                                   <Alert severity="warning" style={{ width: "100%" }}>Request Pending</Alert> 
+                                )}
+                                {req.status === "Accepted" && (
+                                   <Alert severity="success" style={{ width: "100%" }}>Request Accepted</Alert> 
+                                )}
+                                {req.status === "Declined" && (
+                                   <Alert severity="danger" style={{ width: "100%" }}>Request Declined</Alert> 
+                                )}                            
+                                </CardActions>
+                            </Card>  
+                        );  
+                    } 
                 }
             }
             else {
                 for (let index = 0; index < requests.length; index++) {
                     const req = requests[index];
-                    if (req.status === 'Pending') {
                         const student = this.state.userData.find(user => user._id === req.studentID)
-                        displayRequests.push(
-                        <Card style={{ marginBottom: 15 }}>
-                            <CardContent>
-                            <h3>{req.title}</h3>
-                            <h4>Requesting Student: {student.first_name} {student.surname}</h4>
-                            <h4>Contact: {student.email}</h4>
-                            <p>
-                                Description of project: {req.description} <br/> <br/>
-                                Topic Area: {req.topic_area}
-                            </p>
-                            </CardContent>
-                            <CardActions>
-                                <Button 
-                                size="small" 
-                                color="primary"
-                                onClick={() => this.handleRequestAction(req._id, "accept")}
-                                >
-                                    Accept
-                                </Button>
-                                <Button 
-                                size="small" 
-                                color="secondary"
-                                onClick={()=>this.handleRequestAction(req._id, "decline")}
-                                >
-                                    Decline
-                                </Button>
-                            </CardActions>
-                        </Card>
-                        );
-                    }                    
+                        if (req.status === "Pending") {
+                            pendingRequests.push(
+                                <Card style={{ marginBottom: 15 }}>
+                                    <CardContent>
+                                    <h3>{req.title}</h3>
+                                    <h4>Requesting Student: {student.first_name} {student.surname}</h4>
+                                    <h4>Contact: {student.email}</h4>
+                                    <p>
+                                        Description of project: {req.description} <br/> <br/>
+                                        Topic Area: {req.topic_area}
+                                    </p>
+                                    </CardContent>
+                                    <CardActions>
+                                        <Button 
+                                        size="small" 
+                                        color="primary"
+                                        onClick={() => this.handleRequestAction(req._id, "accept")}
+                                        >
+                                            Accept
+                                        </Button>
+                                        <Button 
+                                        size="small" 
+                                        color="secondary"
+                                        onClick={()=>this.handleRequestAction(req._id, "decline")}
+                                        >
+                                            Decline
+                                        </Button>
+                                    </CardActions>
+                                </Card>
+                                );
+                        }
+                        else if (req.status === "Accepted") {
+                            acceptedRequests.push(
+                                <Card style={{ marginBottom: 15 }}>
+                                    <CardContent>
+                                    <h3>{req.title}</h3>
+                                    <h4>Requesting Student: {student.first_name} {student.surname}</h4>
+                                    <h4>Contact: {student.email}</h4>
+                                    <p>
+                                        Description of project: {req.description} <br/> <br/>
+                                        Topic Area: {req.topic_area}
+                                    </p>
+                                    </CardContent>
+                                    <CardActions>
+                                        <Alert variant="outlined" severity="success" style={{ width: "100%" }}>Request Accepted</Alert>
+                                    </CardActions>
+                                </Card>
+                                );
+                        }
+                        else {
+                            declinedRequests.push(
+                                <Card style={{ marginBottom: 15 }}>
+                                    <CardContent>
+                                    <h3>{req.title}</h3>
+                                    <h4>Requesting Student: {student.first_name} {student.surname}</h4>
+                                    <h4>Contact: {student.email}</h4>
+                                    <p>
+                                        Description of project: {req.description} <br/> <br/>
+                                        Topic Area: {req.topic_area}
+                                    </p>
+                                    </CardContent>
+                                    <CardActions>
+                                        <Alert variant="outlined" severity="error" style={{ width: "100%" }}>Request Declined</Alert>
+                                    </CardActions>
+                                </Card>
+                                );
+                        }              
                 }
             }
 
-            if (displayRequests.length === 0) {
-                if (isStudent) {
-                    displayRequests.push(
-                        <Alert severity="warning" style={{ width: "100%" }}>No Requests - <Link to="/supervisors">View all Honours Project supervisors to create a supervision request.</Link></Alert> 
-                    );
-                }
-                else {
-                    displayRequests.push(
-                        <Alert severity="warning" style={{ width: "100%" }}>You Have No Pending Supervison Requests.</Alert> 
-                    );
-                }
-            }
-
-            return isStudent ? (
+            return (
                 <div>
                     <h1>My Requests</h1>
                     <p>View the requests you have submitted to supervisors for supervision of your own project topic idea.</p>
-                    {displayRequests}
+                    <Tabs
+                        value={this.state.tabValue}
+                        onChange={(e, val)=>this.setState({ tabValue: val })}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        centered
+                        style={{ marginBottom: 20 }}
+                    >
+                        <Tab label={"Pending (" + pendingRequests.length + ")"} />
+                        <Tab label={"Accepted (" + acceptedRequests.length + ")"} />
+                        <Tab label={"Declined (" + declinedRequests.length + ")"} />
+                    </Tabs>
+                    {this.state.tabValue === 0 && (
+                        <>
+                        {pendingRequests.length > 0 ? (<>{pendingRequests}</>) : 
+                        (<Alert severity="warning" style={{ width: "100%" }}>No Pending Requests</Alert>) }
+                        </>
+                    )}
+                    {this.state.tabValue === 1 && (
+                        <>
+                        {acceptedRequests.length > 0 ? (<>{acceptedRequests}</>) : 
+                        (<Alert severity="warning" style={{ width: "100%" }}>No Accepted Requests</Alert>) }
+                        </>
+                    )}
+                    {this.state.tabValue === 2 && (
+                        <>
+                        {declinedRequests.length > 0 ? (<>{declinedRequests}</>) : 
+                        (<Alert severity="warning" style={{ width: "100%" }}>No Declined Requests</Alert>) }
+                        </>
+                    )}
                 </div>
-            ) : 
-            (
-                <div>
-                    <h1>My Requests</h1>
-                    <p>View requests from students who wish to use their own project topic idea and wish for you to be their supervisor. <br/> <br/>
-                        View the requests below and decide if you wish to accept or decline the requests. </p>
-                    {displayRequests}
-                </div>
-            );
+            )
         }
     }
 }
