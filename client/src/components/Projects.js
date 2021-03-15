@@ -1,36 +1,51 @@
 import React, { Component } from 'react';
-
+import axios from 'axios';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
-
-import axios from 'axios';
-
-import TextField from '@material-ui/core/TextField';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Clear';
 import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';
 import IconButton from '@material-ui/core/IconButton';
-import { Grid } from '@material-ui/core';
+import { Grid, Typography } from '@material-ui/core';
 import { Link, Redirect } from 'react-router-dom';
 
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import MenuItem from '@material-ui/core/MenuItem';
+import Alert from '@material-ui/lab/Alert';
+import TitleIcon from '@material-ui/icons/Title';
+import DescriptionIcon from '@material-ui/icons/Description';
+import CategoryIcon from '@material-ui/icons/Category';
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
+import { List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core/';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import { Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions } from '@material-ui/core';
 
 class Projects extends Component {
     constructor(props) {
         super(props);
-        this.state = { supervisors: this.props.supervisors, searchText: "", redirect: null, sortBySupervisor: "" }
+        this.state = { supervisors: this.props.supervisors, searchText: "", redirect: null, sortBySupervisor: "", selectedProject: {}, selectedSupervisor: {}, expandProjectDialog: false }
     }
     handleSearch = (e) => {
         e.preventDefault();
         this.setState({ searchText: document.getElementById('txtSearch').value });
+    }
+    handleSelectProject = () => {
+        const user = this.props.user;
+        axios.post(process.env.REACT_APP_SERVER_URL + 'project/update', {
+            _id: this.state.selectedProject._id,
+            studentID: user.userId,
+            available: false
+        }).then(res => {
+            if (res.data===true) {
+                this.props.reloadProjects();
+                this.setState({ redirect: 'my-project'});
+            }
+        })
     }
     render() { 
         if (this.state.redirect) {
@@ -82,20 +97,43 @@ class Projects extends Component {
                         projectDisplay.push(
                             <Card style={{ marginBottom: 15 }}>
                             <CardContent>
-                            <h3>{p.title}</h3>
-                            <p>{p.description}</p>
-                            <p>
-                                Topic Area: {p.topic_area} <br/>
-                                Supervisor: {supervisor.first_name} {supervisor.surname}
-                            </p>
+                            <Typography variant="h6" gutterBottom style={{ textAlign: 'center' }}>{p.title}</Typography>
+                            <List>
+                                <ListItem>
+                                <ListItemIcon>
+                                    <DescriptionIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary="Description"
+                                /> {p.description}
+                                </ListItem>
+                                <ListItem>
+                                <ListItemIcon>
+                                    <CategoryIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary="Topic Area"
+                                /> {p.topic_area}
+                                </ListItem>
+                                <ListItem>
+                                <ListItemIcon>
+                                    <SupervisorAccountIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary="Supervisor"
+                                /> {supervisor.first_name} {supervisor.surname}
+                                </ListItem>
+                            </List>
                             </CardContent>
-                            <CardActions>
+                            <CardActions style={{ justifyContent: 'center' }}>
                                 <Button 
+                                variant="contained"
                                 size="small" 
                                 color="primary"
-                                onClick={() => {this.setState({ redirect: "project/" + p._id })}}
+                                endIcon={<CheckCircleIcon/>}
+                                onClick={()=>this.setState({ selectedProject: p, selectedSupervisor: supervisor, expandProjectDialog: true })}
                                 >
-                                    View Project
+                                    Select This Project
                                 </Button>
                             </CardActions>
                             </Card>
@@ -146,7 +184,7 @@ class Projects extends Component {
             
             </Paper>
             </Grid>
-            <Grid container>
+            <Grid container style={{ marginBottom: 20 }}>
             <FormControl style={{ minWidth: 220 }}>
                 <InputLabel>Sort By Supervisor</InputLabel>
                 <Select
@@ -167,6 +205,66 @@ class Projects extends Component {
             )}
             </Grid>
             {projectDisplay}
+            {projectDisplay.length === 0 && (
+                <Alert variant="outlined" severity="info">
+                    No Pre-Defined Projects Available Right Now - Check Back Later or Contact the Module Leader.
+                </Alert>
+            )}
+
+                    <Dialog open={this.state.expandProjectDialog} onClose={()=>this.setState({ expandProjectDialog: false })}>
+                        <DialogTitle id="form-dialog-title">Select Project</DialogTitle>
+                        <DialogContent>
+                        <DialogContentText>
+                            Are you sure you want to select this project? 
+                        </DialogContentText>
+                        <List>
+                            <ListItem>
+                            <ListItemIcon>
+                                <TitleIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Title"
+                                secondary={this.state.selectedProject.title}
+                            /> 
+                            </ListItem>
+                            <ListItem>
+                            <ListItemIcon>
+                                <DescriptionIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Description"
+                                secondary={this.state.selectedProject.description}
+                            /> 
+                            </ListItem>
+                            <ListItem>
+                            <ListItemIcon>
+                                <CategoryIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Topic Area"
+                                secondary={this.state.selectedProject.topic_area}
+                            /> 
+                            </ListItem>
+                            <ListItem>
+                            <ListItemIcon>
+                                <SupervisorAccountIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Supervisor"
+                                secondary={this.state.selectedSupervisor.first_name + " " + this.state.selectedSupervisor.surname}
+                            /> 
+                            </ListItem>
+                        </List>       
+                        </DialogContent>
+                        <DialogActions>
+                        <Button onClick={()=>this.setState({ expandProjectDialog: false })} color="primary">
+                            Cancel
+                        </Button>
+                        <Button color="primary" onClick={this.handleSelectProject}>
+                            Select
+                        </Button> 
+                        </DialogActions>
+                    </Dialog>
         </div>
         );
     }

@@ -53,7 +53,6 @@ class Home extends Component {
     }
     componentDidMount() {
         this.loadUsers();
-        //this.loadAnnouncement();
     }
     render() {
         var users = [], supervisors = [], projects = [], students = [], currentUser = {};

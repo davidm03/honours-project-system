@@ -27,7 +27,6 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import Projects from './Projects';
 import axios from 'axios';
-import ExpandProject from './ExpandProject';
 import Supervisors from './Supervisors';
 import MyRequests from './MyRequests';
 import MyProject from './MyProject';
@@ -332,8 +331,7 @@ class Dashboard extends Component {
               <ProtectedRoute path="/view/project/:id" component={(props)=><ViewProject {...props} />} supervisor={true} />
               <ProtectedRoute path="/manage/reports" component={()=><Reports data={{projects: this.state.allProjects, supervisors: this.state.supervisors}}/>} admin={true}/>
               
-              <ProtectedRoute path="/projects" component={()=><Projects projects={this.state.allProjects} supervisors={this.state.supervisors}/>} />
-              <ProtectedRoute path="/project/:id" component={(props)=><ExpandProject {...props} user={this.props.user} data={{projects: this.state.allProjects, supervisors: this.state.supervisors}} reloadProjects={this.loadProjects}/>} />
+              <ProtectedRoute path="/projects" component={()=><Projects user={this.props.user} projects={this.state.allProjects} supervisors={this.state.supervisors} reloadProjects={this.loadProjects}/>} />
               <ProtectedRoute path="/supervisors" component={(props)=><Supervisors {...props} user={this.props.user} supervisors={this.state.supervisors}/>} />
               
               <ProtectedRoute path="/profile" component={()=><Profile user={this.props.user}/>} />
