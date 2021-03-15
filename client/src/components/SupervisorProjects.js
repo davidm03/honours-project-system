@@ -7,7 +7,7 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { Button, Typography } from '@material-ui/core';
 import axios from 'axios';
-
+import { Backdrop, CircularProgress } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -22,7 +22,7 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 class SupervisorProjects extends Component {
     constructor(props) {
         super(props);
-        this.state = { selectedProjects: [], newProjectDialog: false, redirect: null }
+        this.state = { selectedProjects: [], newProjectDialog: false, redirect: null, loading: true, projects: [], students: [] }
     }
     handleAddNewProject = (e) => {
         e.preventDefault();
@@ -52,77 +52,96 @@ class SupervisorProjects extends Component {
             }
         });
     }
+    componentDidMount() {
+        if (this.props.data.projects && this.props.data.students) {
+            this.setState({ projects: this.props.data.projects, students: this.props.data.students, loading: false });
+        }
+        else {
+            this.setState({ loading: false });
+        }
+    }
     render() {
+        var projects = [], students = []; 
+        var columns1 = [], columns2 = []; 
+        var rows1 = [], rows2 = [];
+        var headers = [];
         if (this.state.redirect) {
             return <Redirect to={this.state.redirect}/>
         }
-        const projects = this.props.data.projects;
-        const students = this.props.data.students;
-        const columns1 = [
-            {field: 'id', headerName: 'ID', width: 250, hide: true},
-            {field: 'title', headerName: 'Project Title', width: 300},
-            {field: 'description', headerName: 'Description', width: 650},
-            {field: 'topic_area', headerName: 'Topic Area', width: 230}
-        ];
-        const columns2 = [
-            {field: 'id', headerName: 'ID', width: 250, hide: true},
-            {field: 'title', headerName: 'Project Title', width: 500},
-            {field: 'status', headerName: 'Status', width: 300},
-            {field: 'student_name', headerName: 'Student', width: 300},
-            {
-                field: "actions",
-                headerName: 'Actions',
-                width: 130,
-                renderCell: () => (
-                  <strong>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      onClick={()=> {
-                          var selectedID = this.state.selectedProjects.pop();
-                          this.setState({ redirect: "/supervisor/project/" + selectedID });
-                      }}
-                    >
-                      View
-                    </Button>
-                  </strong>
-                ),
-            }
-        ];
-        const rows1 = [];
-        const rows2 = [];
-        if (projects.length > 0) {
-            var len = projects.length, i = 0;
-            while (i < len) {
-                const project = projects[i];
-                if (project.available) {
-                    rows1.push({
-                        id: project._id,
-                        title: project.title,
-                        description: project.description,
-                        topic_area: project.topic_area
-                    });
+        if (this.state.loading) {
+            return (
+                <Backdrop open={true}>
+                        <CircularProgress color="inherit" />
+                </Backdrop>
+            );
+        }
+        else {
+            projects = this.state.projects;
+            students = this.state.students;
+            columns1 = [
+                {field: 'id', headerName: 'ID', width: 250, hide: true},
+                {field: 'title', headerName: 'Project Title', width: 300},
+                {field: 'description', headerName: 'Description', width: 650},
+                {field: 'topic_area', headerName: 'Topic Area', width: 230}
+            ];
+            columns2 = [
+                {field: 'id', headerName: 'ID', width: 250, hide: true},
+                {field: 'title', headerName: 'Project Title', width: 500},
+                {field: 'status', headerName: 'Status', width: 300},
+                {field: 'student_name', headerName: 'Student', width: 300},
+                {
+                    field: "actions",
+                    headerName: 'Actions',
+                    width: 130,
+                    renderCell: () => (
+                    <strong>
+                        <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        onClick={()=> {
+                            var selectedID = this.state.selectedProjects.pop();
+                            this.setState({ redirect: "/supervisor/project/" + selectedID });
+                        }}
+                        >
+                        View
+                        </Button>
+                    </strong>
+                    ),
                 }
-                else {
-                    const student = students.find(s => s._id === project.studentID);
-                    rows2.push({
-                        id: project._id,
-                        title: project.title,
-                        status: project.status,
-                        student_name: student.first_name + " " + student.surname, 
+            ];
+            if (projects.length > 0) {
+                var len = projects.length, i = 0;
+                while (i < len) {
+                    const project = projects[i];
+                    if (project.available) {
+                        rows1.push({
+                            id: project._id,
+                            title: project.title,
+                            description: project.description,
+                            topic_area: project.topic_area
+                        });
+                    }
+                    else {
+                        const student = students.find(s => s._id === project.studentID);
+                        rows2.push({
+                            id: project._id,
+                            title: project.title,
+                            status: project.status,
+                            student_name: student.first_name + " " + student.surname, 
 
-                    });
+                        });
+                    }
+                    i++;
                 }
-                i++;
-            }
-        } 
-        const headers = [
-            { label: "ProjectID", key: "id" },
-            { label: "Project Title", key: "project" },
-            { label: "Status", key: "status" },
-            { label: "Student", key: "student_name" }
-        ];
+            } 
+            headers = [
+                { label: "ProjectID", key: "id" },
+                { label: "Project Title", key: "project" },
+                { label: "Status", key: "status" },
+                { label: "Student", key: "student_name" }
+            ];
+        }
         return (
             <div>
                 <h1>My Projects</h1>
