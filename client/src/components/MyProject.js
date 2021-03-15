@@ -122,6 +122,15 @@ class MyProject extends Component {
         this.uniqueLoadData();
     }
     render() {
+        if (this.props.project === false) {
+            return (
+                <div>
+                    <h1>My Project</h1>
+                    <p>View all information about your selected honours project. From here you can update the status of your project for your supervisor to see or add activity notes.</p>
+                    <Alert severity="warning" style={{ width: "100%" }}>You have not selected an Honours Project! - <Link to="/projects">You can either select a project from the system or request your own.</Link></Alert>
+                </div>
+            );
+        }
         var project = {};
         var supervisor = {};
         var student = {}; 
@@ -131,7 +140,7 @@ class MyProject extends Component {
         if (this.props.data) studentPOV = true;
 
         if (this.state.loading === false) {
-            if (studentPOV) {
+            if (studentPOV) { 
                 project = this.props.data.project;
                 supervisor = this.props.data.supervisor;
             }

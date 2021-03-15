@@ -194,7 +194,6 @@ class Dashboard extends Component {
   }
   loadRequests = () => {
     const user = this.props.user;
-    var requests = [];
     if (user.role.includes("STUDENT")) {
       axios.get(process.env.REACT_APP_SERVER_URL + 'requests/student/' + user.userId)
       .then(res => {
@@ -330,7 +329,7 @@ class Dashboard extends Component {
               
               <ProtectedRoute path="/profile" component={()=><Profile user={this.props.user}/>} />
               <ProtectedRoute path="/requests" component={(props)=><MyRequests {...props} requests={this.state.myRequests} user={this.props.user} loadRequests={this.loadRequests}/>} />
-              <ProtectedRoute path="/my-project" component={(props)=><MyProject {...props} data={this.state.myProjectData} reloadProject={this.loadProjects}/>} />
+              <ProtectedRoute path="/my-project" component={(props)=><MyProject {...props} data={this.state.myProjectData} reloadProject={this.loadProjects} project={this.state.myProjectData ? true : false}/>} />
 
               <ProtectedRoute path="/supervisor/students" component={()=><SupervisorStudents data={this.state.supervisorData}/>} supervisor={true}/>
               <ProtectedRoute path="/supervisor/projects" component={()=><SupervisorProjects data={this.state.supervisorData} reloadProjects={this.loadProjects}/>} supervisor={true}/>
