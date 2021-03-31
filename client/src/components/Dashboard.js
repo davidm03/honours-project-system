@@ -124,7 +124,7 @@ const useStyles = theme => ({
 });
 
 class Dashboard extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state = { open: true, userMenu: false, userMenuAnchorEl: false, redirect: null, allProjects: [], myRequests: [], supervisors: [], supervisorData: {}, myProjectData: [] };
   }
@@ -134,50 +134,50 @@ class Dashboard extends Component {
   }
   loadSupervisors = () => {
     axios.get(process.env.REACT_APP_SERVER_URL + 'users/supervisors')
-    .then(res => {
-      if (res.data.length > 0) {
-        this.setState({ supervisors: res.data });
-      }
-    })
+      .then(res => {
+        if (res.data.length > 0) {
+          this.setState({ supervisors: res.data });
+        }
+      })
   }
   loadStudents = () => {
     axios.get(process.env.REACT_APP_SERVER_URL + 'users/students')
-    .then(res => {
-      if (res.data.length > 0) {
-        var myProjects = this.state.supervisorData.projects;
-        var myStudents = [], i = 0, len = res.data.length; 
-        while (i<len) {
-          const student = res.data[i];
-          const isMyStudent = myProjects.some(project => project.studentID === student._id);
-          if (isMyStudent) myStudents.push(student); 
-          i++;
+      .then(res => {
+        if (res.data.length > 0) {
+          var myProjects = this.state.supervisorData.projects;
+          var myStudents = [], i = 0, len = res.data.length;
+          while (i < len) {
+            const student = res.data[i];
+            const isMyStudent = myProjects.some(project => project.studentID === student._id);
+            if (isMyStudent) myStudents.push(student);
+            i++;
+          }
+          var data = this.state.supervisorData;
+          data.students = myStudents;
+          this.setState({ supervisorData: data });
         }
-        var data = this.state.supervisorData;
-        data.students = myStudents; 
-        this.setState({ supervisorData: data });
-      }
-    })
+      })
   }
   loadProjects = () => {
     const isStudent = this.props.user.role.includes("STUDENT");
     axios.get(process.env.REACT_APP_SERVER_URL + 'project')
-    .then(res => {
+      .then(res => {
         if (res.data && isStudent) {
-            const myProject = res.data.find(project => project.studentID === this.props.user.userId);
-            var data = null;
+          const myProject = res.data.find(project => project.studentID === this.props.user.userId);
+          var data = null;
 
-            if (myProject) {
-              const mySupervisor = this.state.supervisors.find(supervisor => supervisor._id === myProject.supervisorID);
-              data = {
+          if (myProject) {
+            const mySupervisor = this.state.supervisors.find(supervisor => supervisor._id === myProject.supervisorID);
+            data = {
               user: this.props.user,
               project: myProject,
               supervisor: mySupervisor
-              }
             }
-            this.setState({ allProjects: res.data, myProjectData: data });
+          }
+          this.setState({ allProjects: res.data, myProjectData: data });
         }
         else if (res.data && !isStudent) {
-          var supervisorProjects = [], i = 0, len = res.data.length; 
+          var supervisorProjects = [], i = 0, len = res.data.length;
           while (i < len) {
             if (res.data[i].supervisorID === this.props.user.userId) {
               supervisorProjects.push(res.data[i]);
@@ -190,25 +190,25 @@ class Dashboard extends Component {
           this.setState({ allProjects: res.data, supervisorData: data });
           this.loadStudents();
         }
-    });
+      });
   }
   loadRequests = () => {
     const user = this.props.user;
     if (user.role.includes("STUDENT")) {
       axios.get(process.env.REACT_APP_SERVER_URL + 'requests/student/' + user.userId)
-      .then(res => {
-        if (res.data) {
-          this.setState({ myRequests: res.data });
-        }
-      });
+        .then(res => {
+          if (res.data) {
+            this.setState({ myRequests: res.data });
+          }
+        });
     }
     else {
       axios.get(process.env.REACT_APP_SERVER_URL + 'requests/supervisor/' + user.userId)
-      .then(res => {
-        if (res.data) {
-          this.setState({ myRequests: res.data });
-        }
-      });
+        .then(res => {
+          if (res.data) {
+            this.setState({ myRequests: res.data });
+          }
+        });
     }
   }
   componentDidMount() {
@@ -217,18 +217,18 @@ class Dashboard extends Component {
     this.loadRequests();
   }
   render() {
-  if (this.state.redirect) {
-   return <Redirect to={this.state.redirect} /> 
-  }
-  const { classes } = this.props;
+    if (this.state.redirect) {
+      return <Redirect to={this.state.redirect} />
+    }
+    const { classes } = this.props;
 
-  const handleDrawerOpen = () => {
-    this.setState({open: true});
-  };
-  const handleDrawerClose = () => {
-    this.setState({open: false});
-  };
-  const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+    const handleDrawerOpen = () => {
+      this.setState({ open: true });
+    };
+    const handleDrawerClose = () => {
+      this.setState({ open: false });
+    };
+    const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
     return (
       <div className={classes.root}>
         <CssBaseline />
@@ -245,9 +245,9 @@ class Dashboard extends Component {
             </IconButton>
             <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
               Honours Project System
-            </Typography>         
-            <Button endIcon={<ArrowDropDownIcon />} style={{color: "white"}} onClick={(e)=>this.setState({ userMenu: true, userMenuAnchorEl: e.currentTarget })}>
-              { this.props.user.email }
+            </Typography>
+            <Button endIcon={<ArrowDropDownIcon />} style={{ color: "white" }} onClick={(e) => this.setState({ userMenu: true, userMenuAnchorEl: e.currentTarget })}>
+              {this.props.user.email}
             </Button>
             <Popper open={this.state.userMenu} anchorEl={this.state.userMenuAnchorEl} transition disablePortal>
               {({ TransitionProps, placement }) => (
@@ -256,19 +256,19 @@ class Dashboard extends Component {
                   style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
                 >
                   <Paper style={{ minWidth: 200 }}>
-                    <ClickAwayListener onClickAway={()=>this.setState({ userMenu: false })}>
+                    <ClickAwayListener onClickAway={() => this.setState({ userMenu: false })}>
                       <MenuList autoFocusItem={this.state.userMenu}>
                         <Link to="/profile" style={{ textDecoration: 'none', color: 'black' }}>
-                        <MenuItem onClick={()=>this.setState({ userMenu: false })}>
-                          <ListItemIcon>
-                            <AccountCircleIcon/>
-                          </ListItemIcon>
+                          <MenuItem onClick={() => this.setState({ userMenu: false })}>
+                            <ListItemIcon>
+                              <AccountCircleIcon />
+                            </ListItemIcon>
                           Profile
                         </MenuItem>
                         </Link>
                         <MenuItem onClick={this.handleLogout}>
                           <ListItemIcon>
-                              <ExitToAppIcon/>
+                            <ExitToAppIcon />
                           </ListItemIcon>
                           Logout
                         </MenuItem>
@@ -302,14 +302,14 @@ class Dashboard extends Component {
           )}
           {this.props.user.role.includes("MODULE_LEADER") && (
             <>
-             <Divider />
-            <List>{adminListItems}</List>
+              <Divider />
+              <List>{adminListItems}</List>
             </>
           )}
           {this.props.user.role.includes("STUDENT") && (
             <>
-            <Divider />
-            <List>{studentListItems}</List>
+              <Divider />
+              <List>{studentListItems}</List>
             </>
           )}
         </Drawer>
@@ -317,23 +317,23 @@ class Dashboard extends Component {
           <div className={classes.appBarSpacer} />
           <Container maxWidth="lg" className={classes.container}>
             <Switch>
-              <ProtectedRoute path="/home" component={()=><Home data={{ supervisors: this.state.supervisors, projects: this.state.allProjects, user: this.props.user }}/>} />
-              <ProtectedRoute path="/manage/users" component={()=><Users />} admin={true} />
-              <ProtectedRoute path="/view/user/:id" component={(props)=><ViewUser {...props} />} admin={true} />
-              <ProtectedRoute path="/manage/projects" component={()=><AdminProjects data={{projects: this.state.allProjects, supervisors: this.state.supervisors}} loadProjects={this.loadProjects}/>} admin={true} />
-              <ProtectedRoute path="/view/project/:id" component={(props)=><ViewProject {...props} />} supervisor={true} />
-              <ProtectedRoute path="/manage/reports" component={()=><Reports data={{projects: this.state.allProjects, supervisors: this.state.supervisors}}/>} admin={true}/>
-              
-              <ProtectedRoute path="/projects" component={()=><Projects user={this.props.user} projects={this.state.allProjects} supervisors={this.state.supervisors} reloadProjects={this.loadProjects}/>} />
-              <ProtectedRoute path="/supervisors" component={(props)=><Supervisors {...props} user={this.props.user} supervisors={this.state.supervisors}/>} />
-              
-              <ProtectedRoute path="/profile" component={()=><Profile user={this.props.user}/>} />
-              <ProtectedRoute path="/requests" component={(props)=><MyRequests {...props} requests={this.state.myRequests} user={this.props.user} loadRequests={this.loadRequests}/>} />
-              <ProtectedRoute path="/my-project" component={(props)=><MyProject {...props} data={this.state.myProjectData} reloadProject={this.loadProjects} project={this.state.myProjectData ? true : false}/>} />
+              <ProtectedRoute exact path="/" component={() => <Home data={{ supervisors: this.state.supervisors, projects: this.state.allProjects, user: this.props.user }} />} />
+              <ProtectedRoute path="/manage/users" component={() => <Users />} admin={true} />
+              <ProtectedRoute path="/view/user/:id" component={(props) => <ViewUser {...props} />} admin={true} />
+              <ProtectedRoute path="/manage/projects" component={() => <AdminProjects data={{ projects: this.state.allProjects, supervisors: this.state.supervisors }} loadProjects={this.loadProjects} />} admin={true} />
+              <ProtectedRoute path="/view/project/:id" component={(props) => <ViewProject {...props} />} supervisor={true} />
+              <ProtectedRoute path="/manage/reports" component={() => <Reports data={{ projects: this.state.allProjects, supervisors: this.state.supervisors }} />} admin={true} />
 
-              <ProtectedRoute path="/supervisor/students" component={()=><SupervisorStudents data={this.state.supervisorData}/>} supervisor={true}/>
-              <ProtectedRoute path="/supervisor/projects" component={()=><SupervisorProjects data={this.state.supervisorData} reloadProjects={this.loadProjects}/>} supervisor={true}/>
-              <ProtectedRoute path="/supervisor/project/:id" component={(props)=><MyProject {...props} reloadProject={this.loadProjects} supervisor={true}/>} />
+              <ProtectedRoute path="/projects" component={() => <Projects user={this.props.user} projects={this.state.allProjects} supervisors={this.state.supervisors} reloadProjects={this.loadProjects} />} />
+              <ProtectedRoute path="/supervisors" component={(props) => <Supervisors {...props} user={this.props.user} supervisors={this.state.supervisors} />} />
+
+              <ProtectedRoute path="/profile" component={() => <Profile user={this.props.user} />} />
+              <ProtectedRoute path="/requests" component={(props) => <MyRequests {...props} requests={this.state.myRequests} user={this.props.user} loadRequests={this.loadRequests} />} />
+              <ProtectedRoute path="/my-project" component={(props) => <MyProject {...props} data={this.state.myProjectData} reloadProject={this.loadProjects} project={this.state.myProjectData ? true : false} />} />
+
+              <ProtectedRoute path="/supervisor/students" component={() => <SupervisorStudents data={this.state.supervisorData} />} supervisor={true} />
+              <ProtectedRoute path="/supervisor/projects" component={() => <SupervisorProjects data={this.state.supervisorData} reloadProjects={this.loadProjects} />} supervisor={true} />
+              <ProtectedRoute path="/supervisor/project/:id" component={(props) => <MyProject {...props} reloadProject={this.loadProjects} supervisor={true} />} />
             </Switch>
           </Container>
         </main>
