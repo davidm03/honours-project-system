@@ -35,103 +35,103 @@ const useStyles = theme => ({
 });
 
 class Login extends Component {
-    constructor(props){
-        super(props);
-        this.state = { redirect: null, usernameError: null, passwordError: null };
-    }
-    handleLogin = (e) => {
-        e.preventDefault();
-        var email = document.getElementById('email').value;
-        var password = document.getElementById('password').value;
-        axios.post(process.env.REACT_APP_SERVER_URL + 'auth/login', {
-            email: email,
-            password: password
-        })
-        .then(res => {
-            if (res.data.success) {
-              localStorage.setItem('access-token', res.data.token);
-              this.setState({redirect:"/home"});
-            }
-            else{
-                if (res.data.error==="email") {
-                    this.setState({emailError: res.data.message});
-                }
-                else{
-                    this.setState({passwordError: res.data.message});
-                }
-            }
-        })
-    }
-    render(){
-    const { classes } = this.props;  
+  constructor(props) {
+    super(props);
+    this.state = { redirect: null, usernameError: null, passwordError: null };
+  }
+  handleLogin = (e) => {
+    e.preventDefault();
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+    axios.post(process.env.REACT_APP_SERVER_URL + 'auth/login', {
+      email: email,
+      password: password
+    })
+      .then(res => {
+        if (res.data.success) {
+          localStorage.setItem('access-token', res.data.token);
+          this.setState({ redirect: "/" });
+        }
+        else {
+          if (res.data.error === "email") {
+            this.setState({ emailError: res.data.message, passwordError: null });
+          }
+          else {
+            this.setState({ passwordError: res.data.message, emailError: null });
+          }
+        }
+      })
+  }
+  render() {
+    const { classes } = this.props;
 
     if (this.state.redirect) {
-        return <Redirect to={this.state.redirect}/>
+      return <Redirect to={this.state.redirect} />
     }
     return (
-        <Container component="main" maxWidth="xs">
-          <CssBaseline />
-          <div className={classes.paper}>
-            <Avatar className={classes.avatar}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Sign in
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <div className={classes.paper}>
+          <Avatar className={classes.avatar}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign in
             </Typography>
-            <form className={classes.form} noValidate>
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                error={this.state.emailError}
-                helperText={this.state.emailError}
-                fullWidth
-                id="email"
-                label="Email"
-                name="email"
-                autoComplete="email"
-                autoFocus
-              />
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                error={this.state.passwordError}
-                helperText={this.state.passwordError}
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-              />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={classes.submit}
-                onClick={this.handleLogin}
-              >
-                Sign In
+          <form className={classes.form} noValidate>
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              error={this.state.emailError}
+              helperText={this.state.emailError}
+              fullWidth
+              id="email"
+              label="Email"
+              name="email"
+              autoComplete="email"
+              autoFocus
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              error={this.state.passwordError}
+              helperText={this.state.passwordError}
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+              onClick={this.handleLogin}
+            >
+              Sign In
               </Button>
-              <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    Forgot password?
+            <Grid container>
+              <Grid item xs>
+                <Link href="#" variant="body2">
+                  Forgot password?
                   </Link>
-                </Grid>
-                <Grid item>
-                  <Link href="/register/student" variant="body2">
-                    {"Don't have an account? Sign Up"}
-                  </Link>
-                </Grid>
               </Grid>
-            </form>
-          </div>
-        </Container>
-      );
-  }  
+              <Grid item>
+                <Link href="/register/student" variant="body2">
+                  {"Don't have an account? Sign Up"}
+                </Link>
+              </Grid>
+            </Grid>
+          </form>
+        </div>
+      </Container>
+    );
+  }
 }
 
 export default withStyles(useStyles)(Login);
