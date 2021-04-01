@@ -22,7 +22,7 @@ class Home extends Component {
     loadUsers = () => {
         axios.get(process.env.REACT_APP_SERVER_URL + 'users/').then(res => {
             if (res.data.length > 0) {
-                this.setState({ users: res.data  });
+                this.setState({ users: res.data });
             }
             this.loadAnnouncement();
         })
@@ -40,7 +40,7 @@ class Home extends Component {
     postAnnouncement = (e) => {
         e.preventDefault();
         var message = document.getElementById('txtAnnouncement').value;
-        var id = this.props.data.user.userId; 
+        var id = this.props.data.user.userId;
         axios.post(process.env.REACT_APP_SERVER_URL + 'announcement/post', {
             body: message,
             staffID: id
@@ -62,24 +62,23 @@ class Home extends Component {
         if (this.state.loading) {
             return (
                 <Backdrop open={true}>
-                        <CircularProgress color="inherit" />
+                    <CircularProgress color="inherit" />
                 </Backdrop>
             );
         }
         else {
-            console.log("propsHOME", this.props);
             users = this.state.users;
             currentUser = users.find(u => u._id === this.props.data.user.userId);
             supervisors = this.props.data.supervisors;
             projects = this.props.data.projects;
             students = users.filter(s => s.userType === "Student");
             availableProjects = projects.filter(p => p.available).length;
-            projectsOngoing = projects.filter(p => !p.available).length; 
+            projectsOngoing = projects.filter(p => !p.available).length;
             lastLogin = new Date(currentUser.last_login * 1000).toLocaleDateString('en-GB');
 
 
             if (currentUser.userType === "Student") {
-                studentID = currentUser.studentID; 
+                studentID = currentUser.studentID;
                 if (currentUser.project) {
                     studentProject = projects.find(p => p._id === currentUser.project).title;
                 }
@@ -88,44 +87,44 @@ class Home extends Component {
                 }
             }
             else {
-                topicArea = currentUser.topic_area; 
-                supervisorProjectCount = currentUser.projects.length; 
-                supervisorRequestsCount = currentUser.supervision_requests.length; 
+                topicArea = currentUser.topic_area;
+                supervisorProjectCount = currentUser.projects.length;
+                supervisorRequestsCount = currentUser.supervision_requests.length;
             }
-        } 
-        return ( 
+        }
+        return (
             <div>
                 <h1>Home</h1>
                 <Grid container spacing={4}>
                     <Grid item xs={3}>
                         <Card>
                             <CardContent>
-                                <Typography variant="h5" gutterBottom style={{ textAlign: 'center', fontWeight: 'bold'}}>{supervisors.length}</Typography>
-                                <Link to="/supervisors"><Typography variant="subtitle1" color="textSecondary" gutterBottom style={{ textAlign: 'center'}}>Total Supervisors</Typography></Link>
+                                <Typography variant="h5" gutterBottom style={{ textAlign: 'center', fontWeight: 'bold' }}>{supervisors.length}</Typography>
+                                <Link to="/supervisors"><Typography variant="subtitle1" color="textSecondary" gutterBottom style={{ textAlign: 'center' }}>Total Supervisors</Typography></Link>
                             </CardContent>
                         </Card>
                     </Grid>
                     <Grid item xs={3}>
                         <Card>
                             <CardContent>
-                                <Typography variant="h5" gutterBottom style={{ textAlign: 'center', fontWeight: 'bold'}}>{availableProjects}</Typography>
-                                <Link to="/projects"><Typography variant="subtitle1" color="textSecondary" gutterBottom style={{ textAlign: 'center'}}>Available Projects</Typography></Link>
+                                <Typography variant="h5" gutterBottom style={{ textAlign: 'center', fontWeight: 'bold' }}>{availableProjects}</Typography>
+                                <Link to="/projects"><Typography variant="subtitle1" color="textSecondary" gutterBottom style={{ textAlign: 'center' }}>Available Projects</Typography></Link>
                             </CardContent>
                         </Card>
                     </Grid>
                     <Grid item xs={3}>
                         <Card>
                             <CardContent>
-                                <Typography variant="h5" gutterBottom style={{ textAlign: 'center', fontWeight: 'bold'}}>{students.length}</Typography>
-                                <Typography variant="subtitle1" color="textSecondary" gutterBottom style={{ textAlign: 'center'}}>Total Students</Typography>
+                                <Typography variant="h5" gutterBottom style={{ textAlign: 'center', fontWeight: 'bold' }}>{students.length}</Typography>
+                                <Typography variant="subtitle1" color="textSecondary" gutterBottom style={{ textAlign: 'center' }}>Total Students</Typography>
                             </CardContent>
                         </Card>
                     </Grid>
                     <Grid item xs={3}>
                         <Card>
                             <CardContent>
-                                <Typography variant="h5" gutterBottom style={{ textAlign: 'center', fontWeight: 'bold'}}>{projectsOngoing}</Typography>
-                                <Typography variant="subtitle1" color="textSecondary" gutterBottom style={{ textAlign: 'center'}}>Projects Ongoing</Typography>
+                                <Typography variant="h5" gutterBottom style={{ textAlign: 'center', fontWeight: 'bold' }}>{projectsOngoing}</Typography>
+                                <Typography variant="subtitle1" color="textSecondary" gutterBottom style={{ textAlign: 'center' }}>Projects Ongoing</Typography>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -135,7 +134,7 @@ class Home extends Component {
                     <Grid item xs={6}>
                         <Card>
                             <CardContent>
-                                <Typography variant="h6" gutterBottom style={{ textAlign: 'center', fontWeight: 'bold'}}>Manage Your Profile</Typography>
+                                <Typography variant="h6" gutterBottom style={{ textAlign: 'center', fontWeight: 'bold' }}>Manage Your Profile</Typography>
                                 <List component="nav" aria-label="secondary mailbox folders">
                                     <ListItem><ListItemText primary="UserID:" />{currentUser._id}</ListItem>
                                     <ListItem><ListItemText primary="Email:" />{currentUser.email}</ListItem>
@@ -143,19 +142,19 @@ class Home extends Component {
                                     <ListItem><ListItemText primary="Surname:" />{currentUser.surname}</ListItem>
                                     <ListItem><ListItemText primary="Role:" />{currentUser.role[0]}</ListItem>
                                     <ListItem><ListItemText primary="Last Login:" />{lastLogin}</ListItem>
-                                    {currentUser.userType === "Student" ? 
-                                    (
-                                        <>
-                                        <ListItem><ListItemText primary="Student ID:" />{studentID}</ListItem>
-                                        <ListItem><ListItemText primary="Project:" />{studentProject}</ListItem>
-                                        </>
-                                    ) : (
-                                        <>
-                                        <ListItem><ListItemText primary="Topic Area:" />{topicArea}</ListItem>
-                                        <ListItem><ListItemText primary="Projects Supervising:" />{supervisorProjectCount}</ListItem>
-                                        <ListItem><ListItemText primary="Supervision Requests Recieved:" />{supervisorRequestsCount}</ListItem>
-                                        </>
-                                    )}
+                                    {currentUser.userType === "Student" ?
+                                        (
+                                            <>
+                                                <ListItem><ListItemText primary="Student ID:" />{studentID}</ListItem>
+                                                <ListItem><ListItemText primary="Project:" />{studentProject}</ListItem>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <ListItem><ListItemText primary="Topic Area:" />{topicArea}</ListItem>
+                                                <ListItem><ListItemText primary="Projects Supervising:" />{supervisorProjectCount}</ListItem>
+                                                <ListItem><ListItemText primary="Supervision Requests Recieved:" />{supervisorRequestsCount}</ListItem>
+                                            </>
+                                        )}
                                 </List>
                                 <center>
                                     <Link to="/profile" style={{ textDecoration: 'none' }}><Button variant="contained" color="primary">View My Profile</Button></Link>
@@ -166,60 +165,60 @@ class Home extends Component {
                     <Grid item xs={6}>
                         <Card>
                             <CardContent>
-                                <Typography variant="h6" gutterBottom style={{ textAlign: 'center', fontWeight: 'bold'}}>Latest Announcement</Typography>
+                                <Typography variant="h6" gutterBottom style={{ textAlign: 'center', fontWeight: 'bold' }}>Latest Announcement</Typography>
                                 {this.state.announcement ? (
                                     <>
-                                    <Typography style={{ marginTop: 30, marginBottom: 10 }} variant="body1">{this.state.announcement.message_body}</Typography>
-                                    <Divider/>
-                                    <Typography style={{ marginTop: 10 }}variant="subtitle2">{this.state.announcement.date}</Typography>
+                                        <Typography style={{ marginTop: 30, marginBottom: 10 }} variant="body1">{this.state.announcement.message_body}</Typography>
+                                        <Divider />
+                                        <Typography style={{ marginTop: 10 }} variant="subtitle2">{this.state.announcement.date}</Typography>
                                     </>
                                 ) : (
                                     <Alert variant="outlined" severity="info">
                                         No Announcements Available - Please Check Back Later.
                                     </Alert>
                                 )}
-                                
+
                                 {currentUser.role.includes("MODULE_LEADER") && (
-                                <center>
-                                    <Button onClick={()=>this.setState({announcementDialog: true })} style={{ marginTop: 30 }} variant="contained" color="primary" endIcon={<PostAddIcon/>}>Post New Annoucement</Button>
-                                </center>
+                                    <center>
+                                        <Button onClick={() => this.setState({ announcementDialog: true })} style={{ marginTop: 30 }} variant="contained" color="primary" endIcon={<PostAddIcon />}>Post New Annoucement</Button>
+                                    </center>
                                 )}
                             </CardContent>
                         </Card>
                     </Grid>
                 </Grid>
 
-                <Dialog open={this.state.announcementDialog} onClose={()=>this.setState({ announcementDialog: false })}>
-                        <DialogTitle id="form-dialog-title">Post New Announcement</DialogTitle>
-                        <form onSubmit={this.postAnnouncement}>
+                <Dialog open={this.state.announcementDialog} onClose={() => this.setState({ announcementDialog: false })}>
+                    <DialogTitle id="form-dialog-title">Post New Announcement</DialogTitle>
+                    <form onSubmit={this.postAnnouncement}>
                         <DialogContent>
-                        <DialogContentText>
-                            Enter your message below that you wish to announce to all users on the Home screen. 
+                            <DialogContentText>
+                                Enter your message below that you wish to announce to all users on the Home screen.
                         </DialogContentText>
-                        <TextField
-                            margin="dense"
-                            id="txtAnnouncement"
-                            label="Message"
-                            fullWidth
-                            multiline
-                            rows={3}
-                            required
-                            variant="outlined"
-                        />        
+                            <TextField
+                                margin="dense"
+                                id="txtAnnouncement"
+                                label="Message"
+                                fullWidth
+                                multiline
+                                rows={3}
+                                required
+                                variant="outlined"
+                            />
                         </DialogContent>
                         <DialogActions>
-                        <Button onClick={()=>this.setState({ announcementDialog: false })} color="primary">
-                            Cancel
+                            <Button onClick={() => this.setState({ announcementDialog: false })} color="primary">
+                                Cancel
                         </Button>
-                        <Button type="submit" color="primary">
-                            Post
-                        </Button> 
+                            <Button type="submit" color="primary">
+                                Post
+                        </Button>
                         </DialogActions>
-                        </form>
-                    </Dialog>
+                    </form>
+                </Dialog>
             </div>
         );
     }
 }
- 
+
 export default Home;

@@ -59,7 +59,7 @@ exports.getAllUsers = function () {
                 var len = users.length, i = 0;
                 while (i < len) {
                     const user = users[i];
-                    user.password = undefined; 
+                    user.password = undefined;
                     outputUsers.push(user);
                     i++;
                 }
@@ -118,18 +118,18 @@ exports.getStudents = function () {
 
 exports.authenticateUser = function (email, password) {
     return new Promise((resolve, reject) => {
-        User.findOne({ email: email }, function (err, user) {
+        User.findOne({ email: new RegExp(`^${email}$`, 'i') }, function (err, user) {
             if (err) {
                 console.log('An error has been encounted');
                 reject(err);
             }
             if (!user) {
-                resolve({error: "email", message: "Email does not exist."});
+                resolve({ error: "email", message: "Email does not exist." });
             }
-            else{
+            else {
                 bcrypt.compare(password, user.password).then(isMatch => {
                     if (!isMatch) {
-                        resolve({error: "password", message: "Incorrect password."});
+                        resolve({ error: "password", message: "Incorrect password." });
                     }
 
                     let access_token = createJWT(
@@ -140,20 +140,20 @@ exports.authenticateUser = function (email, password) {
                     );
                     jwt.verify(access_token, process.env.TOKEN_SECRET, (err, decoded) => {
                         if (err) {
-                            resolve({error: "password", message: "Unable to authenticate access."});
+                            resolve({ error: "password", message: "Unable to authenticate access." });
                         }
                         if (decoded) {
-                            User.findByIdAndUpdate(user._id, {last_login: new Date() / 1000}, function (err, updatedUser) {
+                            User.findByIdAndUpdate(user._id, { last_login: new Date() / 1000 }, function (err, updatedUser) {
                                 if (err) {
                                     reject(err);
                                 }
-                                resolve({success: true, token: access_token, message: updatedUser});
+                                resolve({ success: true, token: access_token, message: updatedUser });
                             })
-                            
+
                         }
                     });
                 });
-            }            
+            }
         }).catch(function (err) {
             throw (err)
         });
@@ -167,7 +167,7 @@ exports.registerUser = function (email, password, role) {
             password,
             role
         });
-        bcrypt.genSalt(10, function (err, salt){
+        bcrypt.genSalt(10, function (err, salt) {
             bcrypt.hash(newUser.password, salt, function (err, hash) {
                 if (err) throw err;
                 newUser.password = hash;
@@ -194,7 +194,7 @@ exports.registerStaff = function (email, first_name, surname, password, role, to
             role,
             topic_area
         });
-        bcrypt.genSalt(10, function (err, salt){
+        bcrypt.genSalt(10, function (err, salt) {
             bcrypt.hash(newUser.password, salt, function (err, hash) {
                 if (err) throw err;
                 newUser.password = hash;
@@ -221,7 +221,7 @@ exports.registerStudent = function (email, first_name, surname, password, role, 
             role,
             studentID
         });
-        bcrypt.genSalt(10, function (err, salt){
+        bcrypt.genSalt(10, function (err, salt) {
             bcrypt.hash(newUser.password, salt, function (err, hash) {
                 if (err) throw err;
                 newUser.password = hash;
@@ -238,7 +238,7 @@ exports.registerStudent = function (email, first_name, surname, password, role, 
     });
 }
 
-exports.updateUser = function(id, update) {
+exports.updateUser = function (id, update) {
     //var update = { status: newStatus };
 
     return new Promise((resolve, reject) => {
@@ -257,7 +257,7 @@ exports.updateUser = function(id, update) {
     });
 }
 
-exports.deleteUsers = function(users) {
+exports.deleteUsers = function (users) {
     for (let index = 0; index < users.length; index++) {
         const userID = users[index];
 
@@ -265,7 +265,7 @@ exports.deleteUsers = function(users) {
             if (err) {
                 return false;
             }
-        });        
+        });
     }
     return true;
 }

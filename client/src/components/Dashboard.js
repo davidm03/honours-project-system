@@ -126,7 +126,17 @@ const useStyles = theme => ({
 class Dashboard extends Component {
   constructor(props) {
     super(props);
-    this.state = { open: true, userMenu: false, userMenuAnchorEl: false, redirect: null, allProjects: [], myRequests: [], supervisors: [], supervisorData: {}, myProjectData: [] };
+    this.state = {
+      open: true,
+      userMenu: false,
+      userMenuAnchorEl: false,
+      redirect: null,
+      allProjects: [],
+      myRequests: [],
+      supervisors: [],
+      supervisorData: {},
+      myProjectData: []
+    };
   }
   handleLogout = () => {
     localStorage.removeItem('access-token');
@@ -325,10 +335,10 @@ class Dashboard extends Component {
               <ProtectedRoute path="/manage/reports" component={() => <Reports data={{ projects: this.state.allProjects, supervisors: this.state.supervisors }} />} admin={true} />
 
               <ProtectedRoute path="/projects" component={() => <Projects user={this.props.user} projects={this.state.allProjects} supervisors={this.state.supervisors} reloadProjects={this.loadProjects} />} />
-              <ProtectedRoute path="/supervisors" component={(props) => <Supervisors {...props} user={this.props.user} supervisors={this.state.supervisors} />} />
+              <ProtectedRoute path="/supervisors" component={(props) => <Supervisors {...props} user={this.props.user} supervisors={this.state.supervisors} projects={this.state.allProjects} reloadRequests={this.loadRequests} />} />
 
               <ProtectedRoute path="/profile" component={() => <Profile user={this.props.user} />} />
-              <ProtectedRoute path="/requests" component={(props) => <MyRequests {...props} requests={this.state.myRequests} user={this.props.user} loadRequests={this.loadRequests} />} />
+              <ProtectedRoute path="/requests" component={(props) => <MyRequests {...props} requests={this.state.myRequests} user={this.props.user} loadRequests={this.loadRequests} loadProjects={this.loadProjects} />} />
               <ProtectedRoute path="/my-project" component={(props) => <MyProject {...props} data={this.state.myProjectData} reloadProject={this.loadProjects} project={this.state.myProjectData ? true : false} />} />
 
               <ProtectedRoute path="/supervisor/students" component={() => <SupervisorStudents data={this.state.supervisorData} />} supervisor={true} />
