@@ -76,6 +76,11 @@ class SupervisorProjects extends Component {
             // store props in state and set loading to false
             this.setState({ projects: this.props.data.projects, students: this.props.data.students, loading: false });
         }
+        // else if component props contain projects and no students
+        else if (this.props.data.projects) {
+            // store projects in state and set loading to false
+            this.setState({ projects: this.props.data.projects, loading: false });
+        }
         else {
             // else just set loading false
             this.setState({ loading: false });
