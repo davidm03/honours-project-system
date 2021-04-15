@@ -107,7 +107,7 @@ exports.updateProject = function (id, update) {
             // no errors
             else {
                 // if update was to add student ID (I.E Student selects pre-defined project)
-                if (update.studentID) {
+                if (update.studentID && update.available === false) {
                     // update discriminator keys for student
                     Student.findByIdAndUpdate(update.studentID, { project: project._id }, function (err, student) {
                         if (err) {
