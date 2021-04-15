@@ -1,3 +1,8 @@
+/* 
+  David McDowall - Honours Project
+  listItems.js function component that stores the various list displays used within the sidebar navigation drawer.
+*/
+
 import React from 'react';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -13,9 +18,13 @@ import { Link } from 'react-router-dom';
 import Badge from '@material-ui/core/Badge';
 import BarChartIcon from '@material-ui/icons/BarChart';
 
+/* Function for returning the main list items displayed for all users
+  Params: Number of pending requests for the user
+*/
 export function mainListItems(numRequests) {
   return (
     <div>
+      {/* List of projects, supervisors and requests links available to all users */}
       <Link to="/" style={{ textDecoration: 'none', color: 'black' }}>
         <ListItem button>
           <ListItemIcon>
@@ -53,6 +62,7 @@ export function mainListItems(numRequests) {
     </div>);
 };
 
+/* AdminListItems which stores the list items for the Admin (Module Leader) */
 export const adminListItems = (
   <div>
     <ListSubheader inset>Manage Module</ListSubheader>
@@ -83,6 +93,7 @@ export const adminListItems = (
   </div>
 );
 
+/* supervisorListItems which stores the list items for the Supervisor */
 export const supervisorListItems = (
   <div>
     <ListSubheader inset>Project Supervision</ListSubheader>
@@ -105,6 +116,7 @@ export const supervisorListItems = (
   </div>
 );
 
+/* studentListItems which stores the list items for the Student */
 export const studentListItems = (
   <div>
     <ListSubheader inset>Manage Project</ListSubheader>

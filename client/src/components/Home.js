@@ -1,3 +1,8 @@
+/* 
+    David McDowall - Honours Project
+    Home.js component for processing and rendering the Home screen
+*/
+
 import React, { Component } from 'react';
 import axios from 'axios';
 
@@ -14,59 +19,86 @@ import { Link } from 'react-router-dom';
 import Alert from '@material-ui/lab/Alert';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions } from '@material-ui/core';
 
+/* Home component */
 class Home extends Component {
     constructor(props) {
         super(props);
+        // Home state
         this.state = { loading: true, users: [], announcement: null, announcementDialog: false }
     }
+    /* Function for loading all users from the server */
     loadUsers = () => {
+        // use axios to send GET request to server for users
         axios.get(process.env.REACT_APP_SERVER_URL + 'users/').then(res => {
+            // if response contains data
             if (res.data.length > 0) {
+                // store users in state
                 this.setState({ users: res.data });
             }
+            // call function to load latest announcement
             this.loadAnnouncement();
         })
     }
+    /* Function to load the latest announcement from the server */
     loadAnnouncement = () => {
+        // use axios to send GET request to server for latest announcement
         axios.get(process.env.REACT_APP_SERVER_URL + 'announcement/').then(res => {
+            // if response contains data
             if (res.data !== false) {
+                // store announcement in state and stop page loading
                 this.setState({ announcement: res.data, loading: false });
             }
             else {
+                // stop page loading
                 this.setState({ loading: false });
             }
         })
     }
+    /* Function to handle module leader posting a new announcement */
     postAnnouncement = (e) => {
+        // prevent page reload
         e.preventDefault();
+        // get message from textbox 
         var message = document.getElementById('txtAnnouncement').value;
+        // get current user id
         var id = this.props.data.user.userId;
+        // use axios to send POST request to server for creating new announcement
         axios.post(process.env.REACT_APP_SERVER_URL + 'announcement/post', {
             body: message,
             staffID: id
         }).then(res => {
+            // if response is success
             if (res.data !== false) {
+                // reload announcement and hide dialog 
                 this.loadAnnouncement();
                 this.setState({ announcementDialog: false });
             }
         })
     }
+    /* ComponentDidMount function runs when component successfully mounts */
     componentDidMount() {
+        // call to load users
         this.loadUsers();
     }
+    /* Render method for rendering elements for display */
     render() {
+        // variables to store data
         var users = [], supervisors = [], projects = [], students = [], currentUser = {};
         var availableProjects = 0, projectsOngoing = 0, lastLogin = "";
         var studentProject = "", studentID = "";
         var topicArea = "", supervisorProjectCount = 0, supervisorRequestsCount = 0;
+        // if page is still loading from server
         if (this.state.loading) {
+            // return loading screen
             return (
                 <Backdrop open={true}>
                     <CircularProgress color="inherit" />
                 </Backdrop>
             );
         }
+        // if page has loaded
         else {
+            // retrieve and process data from state/props
             users = this.state.users;
             currentUser = users.find(u => u._id === this.props.data.user.userId);
             supervisors = this.props.data.supervisors;
@@ -77,24 +109,33 @@ class Home extends Component {
             lastLogin = new Date(currentUser.last_login * 1000).toLocaleDateString('en-GB');
 
 
+            // check if current user is a student
             if (currentUser.userType === "Student") {
+                // check if the student has selected a project and retrieve it
                 studentID = currentUser.studentID;
                 if (currentUser.project) {
                     studentProject = projects.find(p => p._id === currentUser.project).title;
                 }
+                // if no project - set message
                 else {
                     studentProject = "You have not selected a project."
                 }
             }
+            // if user is not student
             else {
+                // load staff only attributes
                 topicArea = currentUser.topic_area;
                 supervisorProjectCount = currentUser.projects.length;
                 supervisorRequestsCount = currentUser.supervision_requests.length;
             }
         }
+        /* Return method for displaying UI elements.
+            Features card display with system statistics, current user information and announcement information
+        */
         return (
             <div>
                 <h1>Home</h1>
+                {/* System statistic card display */}
                 <Grid container spacing={4}>
                     <Grid item xs={3}>
                         <Card>
@@ -130,6 +171,7 @@ class Home extends Component {
                     </Grid>
                 </Grid>
 
+                {/* Current user profile information display */}
                 <Grid container spacing={4}>
                     <Grid item xs={6}>
                         <Card>
@@ -162,6 +204,7 @@ class Home extends Component {
                             </CardContent>
                         </Card>
                     </Grid>
+                    {/* Announcements display */}
                     <Grid item xs={6}>
                         <Card>
                             <CardContent>
@@ -188,6 +231,7 @@ class Home extends Component {
                     </Grid>
                 </Grid>
 
+                {/* Dialog that opens on button click for posting new announcement */}
                 <Dialog open={this.state.announcementDialog} onClose={() => this.setState({ announcementDialog: false })}>
                     <DialogTitle id="form-dialog-title">Post New Announcement</DialogTitle>
                     <form onSubmit={this.postAnnouncement}>

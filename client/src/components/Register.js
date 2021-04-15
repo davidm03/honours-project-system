@@ -1,3 +1,8 @@
+/* 
+  David McDowall - Honours Project
+  Register.js component that processes and displays the screen for registering new students
+*/
+
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -14,6 +19,7 @@ import React, { Component } from 'react';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 
+/* Function for setting page styles */
 const useStyles = theme => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -34,14 +40,19 @@ const useStyles = theme => ({
   },
 });
 
+/* Register component */
 class Register extends Component {
   constructor(props) {
     super(props);
     this.state = { redirect: null, emailError: null, studentIDError: null, passwordError: null, confPasswordError: null, checkConsent: false };
   }
+  /* Function for handling registering a new student */
   handleRegister = (e) => {
+    // prevent the page from reloading
     e.preventDefault();
+    // check if the user has checked the GDPR consent checkbox
     if (this.state.checkConsent) {
+      // get the user information from the text fields on screen
       var email = document.getElementById('email').value;
       var first_name = document.getElementById('first_name').value;
       var surname = document.getElementById('surname').value;
@@ -49,13 +60,19 @@ class Register extends Component {
       var password = document.getElementById('password').value;
       var confPassword = document.getElementById('confPassword').value;
 
+      // check if the users password matches the confirm password field
       if (password !== confPassword) {
+        // display error message
         this.setState({ confPasswordError: "Passwords do not match." });
       }
+      // else check if email address entered is a valid email
       else if (!this.validateEmail(email)) {
+        // display error message
         this.setState({ emailError: "Invalid email address." })
       }
+      // else register user
       else {
+        // use axios to send POST request to register a new user
         axios.post(process.env.REACT_APP_SERVER_URL + 'users/register', {
           email: email,
           first_name: first_name,
@@ -65,14 +82,21 @@ class Register extends Component {
           password: password
         })
           .then(res => {
+            // if success response
             if (res.data === true) {
+              // redirect user to login
               this.setState({ redirect: "/login" });
             }
+            // else failure response
             else {
+              // check if error is email
               if (res.data.error === "email") {
+                // display email error
                 this.setState({ emailError: res.data.message, studentIDError: null, passwordError: null, confPasswordError: null });
               }
+              // else if error is student id error
               else if (res.data.error === "studentID") {
+                // display student id error
                 this.setState({ studentIDError: res.data.message, emailError: null, passwordError: null, confPasswordError: null });
               }
             }
@@ -80,16 +104,25 @@ class Register extends Component {
       }
     }
   }
+  /* Function for validating a users email address 
+    Params: email address
+  */
   validateEmail = (email) => {
+    // define regex for checking email address
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    // test email against regex and return true/false
     return re.test(String(email).toLowerCase());
   }
+  /* Render method to process and display user interface */
   render() {
     const { classes } = this.props;
 
+    // check if page is redirecting
     if (this.state.redirect) {
+      // redirct the user
       return <Redirect to={this.state.redirect} />
     }
+    // return the user interface display
     return (
       <Container component="main" maxWidth="xs">
         <CssBaseline />
@@ -100,6 +133,7 @@ class Register extends Component {
           <Typography component="h1" variant="h5">
             Student Registration
             </Typography>
+          {/* HTML Form for registering user */}
           <form className={classes.form} onSubmit={this.handleRegister}>
             <TextField
               variant="outlined"
@@ -169,6 +203,7 @@ class Register extends Component {
               id="confPassword"
               autoComplete="new-password"
             />
+            {/* GDPR data consent checkbox */}
             <FormControlLabel
               control={
                 <Checkbox
@@ -180,6 +215,7 @@ class Register extends Component {
               }
               label="I consent to my account details being stored and processed."
             />
+            {/*  Register button is disabled unless user checks GDPR consent */}
             {this.state.checkConsent ? (
               <Button
                 type="submit"
@@ -203,6 +239,7 @@ class Register extends Component {
               </Button>
             )}
 
+            {/* Link to login */}
             <Grid container justify="center">
               <Link href="/login" variant="body2">
                 {"Already registered? Sign in!"}

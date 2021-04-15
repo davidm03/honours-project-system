@@ -188,7 +188,7 @@ exports.authenticateUser = function (email, password) {
                         user.email,
                         user._id,
                         user.role,
-                        "15m"
+                        "12h"
                     );
                     // verify the JWT with the secret key
                     jwt.verify(access_token, process.env.TOKEN_SECRET, (err, decoded) => {

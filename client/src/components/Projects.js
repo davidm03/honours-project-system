@@ -1,3 +1,8 @@
+/* 
+    David McDowall - Honours Project
+    Projects.js component which processes and displays the projects screen where users can browse and select pre-defined projects
+*/
+
 import React, { Component } from 'react';
 import axios from 'axios';
 import Button from '@material-ui/core/Button';
@@ -22,88 +27,119 @@ import CategoryIcon from '@material-ui/icons/Category';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import { List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core/';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import { Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions } from '@material-ui/core';
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@material-ui/core';
 
+/* Projects component */
 class Projects extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            supervisors: this.props.supervisors,
-            searchText: "",
-            redirect: null,
-            sortBySupervisor: "",
-            selectedProject: {},
-            selectedSupervisor: {},
-            expandProjectDialog: false
+            supervisors: this.props.supervisors,    // colleciton of supervisors
+            searchText: "", // initial search text
+            redirect: null, // null redirect
+            sortBySupervisor: "",   // initial sort by supervisor
+            selectedProject: {},    // selected project
+            selectedSupervisor: {}, // selected supervisor
+            expandProjectDialog: false  // expand project dialog
         }
     }
+    /*  Function to handle a user searching the list of projects */
     handleSearch = (e) => {
+        // prevent page reload
         e.preventDefault();
+        // store the search text in the state
         this.setState({ searchText: document.getElementById('txtSearch').value });
     }
+    /* Function to handle a user selecting a project for their honours project */
     handleSelectProject = () => {
+        // get the current user
         const user = this.props.user;
+        // use axios to send a POST request to the server to update a project
         axios.post(process.env.REACT_APP_SERVER_URL + 'project/update', {
             _id: this.state.selectedProject._id,
-            studentID: user.userId,
+            studentID: user.userId, // selected project is updated with the selecting students ID
             available: false,
             status: "Project Initiated"
         }).then(res => {
+            // if response success
             if (res.data === true) {
+                // reload projects and redirect the user to the my project page
                 this.props.reloadProjects();
                 this.setState({ redirect: 'my-project' });
             }
         });
     }
+    /* Render method for processing and rendering the UI */
     render() {
+        // check if the page is redirecting
         if (this.state.redirect) {
+            // redirect user
             return <Redirect to={this.state.redirect} />
         }
+        // get projects and supervisors
         const projects = this.props.projects;
         const supervisors = this.state.supervisors;
         var projectDisplay = [];
         var supervisorMenuItems = [];
 
+        // if there are supervisors and projects
         if (supervisors.length > 0 && projects.length > 0) {
             var pushProject = false;
+            // loop through projects
             for (let index = 0; index < projects.length; index++) {
+                // get current project and supervisor
                 const p = projects[index];
                 var supervisor = this.state.supervisors.find(s => s._id === p.supervisorID);
 
+                // if the project is available
                 if (p.available) {
+                    // check if the user has entered search text
                     if (this.state.searchText) {
+                        // variable to determine if the project matches the search text
                         var match = false;
+                        // check if title matches
                         if (p.title.toLowerCase().indexOf(this.state.searchText.toLowerCase()) > -1) {
                             match++;
                         }
+                        // check if description matches
                         else if (p.description.toLowerCase().indexOf(this.state.searchText.toLowerCase()) > -1) {
                             match++;
                         }
+                        // check if topic area matches
                         else if (p.topic_area.toLowerCase().indexOf(this.state.searchText.toLowerCase()) > -1) {
                             match++;
                         }
 
+                        // if match has been found and the user is not sorting by supervisor
                         if (match && !this.state.sortBySupervisor) {
+                            // add project for display
                             pushProject++;
                         }
+                        // else if match has been found and user is sorting by supervisor
                         else if (match && this.state.sortBySupervisor) {
+                            // check if supervisor matches the sort and add the project for display
                             if (supervisor._id === this.state.sortBySupervisor) {
                                 pushProject++;
                             }
                         }
                     }
+                    // else if the user is sorting the display by supervisor
                     else if (this.state.sortBySupervisor) {
+                        // check if the supervisor matches the sort and add the project for display
                         if (supervisor._id === this.state.sortBySupervisor) {
                             pushProject++;
                         }
                     }
+                    // else there is no search text or supervisor sort - add the project for display
                     else {
                         pushProject++;
                     }
 
+                    // if the project should be added to display - create card element and add it to project collection
                     if (pushProject) {
                         projectDisplay.push(
                             <Card style={{ marginBottom: 15 }}>
+                                {/* Project information */}
                                 <CardContent>
                                     <Typography variant="h6" gutterBottom style={{ textAlign: 'center' }}>{p.title}</Typography>
                                     <List>
@@ -133,6 +169,9 @@ class Projects extends Component {
                                         </ListItem>
                                     </List>
                                 </CardContent>
+                                {/* Select project button
+                                    Will only be displayed to students who do not have a project
+                                */}
                                 {this.props.user.role.includes("STUDENT") && !projects.find(p => p.studentID === this.props.user.userId) &&
                                     <CardActions style={{ justifyContent: 'center' }}>
                                         <Button
@@ -151,6 +190,7 @@ class Projects extends Component {
                     }
                 }
             }
+            // loop through supervisors and add each supervisor to the sort dropdown
             var len = supervisors.length, i = 0;
             while (i < len) {
                 const supervisor = supervisors[i];
@@ -160,6 +200,7 @@ class Projects extends Component {
                 i++;
             }
         }
+        // return the user interface for display
         return (
             <div>
                 <h1>Honours Projects</h1>
@@ -167,6 +208,7 @@ class Projects extends Component {
                 <Link to="/supervisors">
                     <p>Want to select your own topic? Instead you can view all project supervisors and submit a supervision request.</p>
                 </Link>
+                {/* Search form */}
                 <Grid container justify="center">
                     <Paper component="form" onSubmit={this.handleSearch} style={{ padding: '2px 4px', display: 'flex', alignItems: 'center', width: 600, marginBottom: 15 }}>
                         <InputBase
@@ -194,6 +236,7 @@ class Projects extends Component {
 
                     </Paper>
                 </Grid>
+                {/* Sort by supervisor dropdown */}
                 <Grid container style={{ marginBottom: 20 }}>
                     <FormControl style={{ minWidth: 220 }}>
                         <InputLabel>Sort By Supervisor</InputLabel>
@@ -214,19 +257,24 @@ class Projects extends Component {
                         </IconButton>
                     )}
                 </Grid>
+                {/* Project displays */}
                 {projectDisplay}
+                {/* Error message for no projects found */}
                 {projectDisplay.length === 0 && (
                     <Alert variant="outlined" severity="info">
                         No Pre-Defined Projects Available Right Now - Check Back Later or Contact the Module Leader.
                     </Alert>
                 )}
 
+                {/* Dialog for selecting a project */}
                 <Dialog open={this.state.expandProjectDialog} onClose={() => this.setState({ expandProjectDialog: false })}>
                     <DialogTitle id="form-dialog-title">Select Project</DialogTitle>
+                    {/* Confirmation message */}
                     <DialogContent>
                         <DialogContentText>
                             Are you sure you want to select this project?
                         </DialogContentText>
+                        {/* Project information */}
                         <List>
                             <ListItem>
                                 <ListItemIcon>

@@ -1,3 +1,8 @@
+/* 
+  David McDowall - Honours Project
+  Index.js file that renders the App component on the document object model inside the root element
+*/
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';

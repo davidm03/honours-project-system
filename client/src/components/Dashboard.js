@@ -1,3 +1,8 @@
+/* 
+  David McDowall - Honours Project
+  Dashboard.js component which hosts the dashboard skeleton and nested React Router for displaying dynamic content within the dashboard depending on the users navigation. 
+*/
+
 import React, { Component } from 'react';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
@@ -44,6 +49,7 @@ import Home from './Home';
 
 const drawerWidth = 240;
 
+/* Function for defining page styling elements (Dashboard theme) */
 const useStyles = theme => ({
   root: {
     display: 'flex',
@@ -123,77 +129,108 @@ const useStyles = theme => ({
   },
 });
 
+/* Dashboard component */
 class Dashboard extends Component {
   constructor(props) {
     super(props);
+    // define the initial component state 
     this.state = {
-      open: true,
-      userMenu: false,
-      userMenuAnchorEl: false,
-      redirect: null,
-      allProjects: [],
-      myRequests: [],
-      supervisors: [],
-      supervisorData: {},
-      myProjectData: []
+      open: true, // dashboard sidebar open or closed variable
+      userMenu: false,  // user name dropdown open or closed variable
+      userMenuAnchorEl: false,  // user name dropdown anchor element
+      redirect: null, // redirects if set 
+      allProjects: [],  // collection of all projects
+      myRequests: [], // collection of current user requests
+      supervisors: [],  // collection of all supervisors
+      supervisorData: {}, // data relevant to a current supervisor
+      myProjectData: [] // data of students current project
     };
   }
+  /* Function for handling a user logout */
   handleLogout = () => {
+    // remove the JWT access token from local storage
     localStorage.removeItem('access-token');
+    // redirect the user outside of the application to the login page
     this.setState({ redirect: "/login" });
   }
+  /* Function for loading supervisors from the server */
   loadSupervisors = () => {
+    // use axios to send GET request to server
     axios.get(process.env.REACT_APP_SERVER_URL + 'users/supervisors')
       .then(res => {
+        // if response contains data
         if (res.data.length > 0) {
+          // store the data in the state
           this.setState({ supervisors: res.data });
         }
       })
   }
+  /* Function for loading all student supervised by the current supervisor from the server */
   loadStudents = () => {
+    // use axios to send GET request to server
     axios.get(process.env.REACT_APP_SERVER_URL + 'users/students')
       .then(res => {
+        // if response contains data
         if (res.data.length > 0) {
+          // define variables
           var myProjects = this.state.supervisorData.projects;
           var myStudents = [], i = 0, len = res.data.length;
+          // loop through students
           while (i < len) {
+            // get current student
             const student = res.data[i];
+            // check if current student is being supervised by current supervisor
             const isMyStudent = myProjects.some(project => project.studentID === student._id);
+            // if supervisor student - add to collection of students
             if (isMyStudent) myStudents.push(student);
             i++;
           }
+          // store the supervisors student data in the state
           var data = this.state.supervisorData;
           data.students = myStudents;
           this.setState({ supervisorData: data });
         }
       })
   }
+  /* Function for loading all projects from the server */
   loadProjects = () => {
+    // check if current user is a student
     const isStudent = this.props.user.role.includes("STUDENT");
+    // use axios to send GET request to server for projects
     axios.get(process.env.REACT_APP_SERVER_URL + 'project')
       .then(res => {
+        // if response contains data and user is student
         if (res.data && isStudent) {
+          // find the current students project
           const myProject = res.data.find(project => project.studentID === this.props.user.userId);
           var data = null;
 
+          // if the current student has a project
           if (myProject) {
+            // find the current students supervisor
             const mySupervisor = this.state.supervisors.find(supervisor => supervisor._id === myProject.supervisorID);
+            // create a JSON object to store all student project-supervisor data
             data = {
               user: this.props.user,
               project: myProject,
               supervisor: mySupervisor
             }
           }
+          // store data in state
           this.setState({ allProjects: res.data, myProjectData: data });
         }
+        // if response contains data and user is NOT student
         else if (res.data && !isStudent) {
+          // loop through projects
           var supervisorProjects = [], i = 0, len = res.data.length;
           while (i < len) {
+            // if the project is being supervised by the current supervisor - add to collection
             if (res.data[i].supervisorID === this.props.user.userId) {
               supervisorProjects.push(res.data[i]);
             }
             i++;
           }
+          // store the data in the state and load students
           var data = this.state.supervisorData;
           data.user = this.props.user;
           data.projects = supervisorProjects;
@@ -202,46 +239,67 @@ class Dashboard extends Component {
         }
       });
   }
+  /* Function for loading requests from the server */
   loadRequests = () => {
+    // get the current user from props
     const user = this.props.user;
+    // if the current user is a student
     if (user.role.includes("STUDENT")) {
+      // use axios to perform GET request for the students requests
       axios.get(process.env.REACT_APP_SERVER_URL + 'requests/student/' + user.userId)
         .then(res => {
+          // if response contains data
           if (res.data) {
+            // store the requests in the state
             this.setState({ myRequests: res.data });
           }
         });
     }
+    // if user is NOT a student
     else {
+      // use axios to perform GET request for the supervisors requests
       axios.get(process.env.REACT_APP_SERVER_URL + 'requests/supervisor/' + user.userId)
         .then(res => {
+          // if response contains data
           if (res.data) {
+            // store the requests in the state
             this.setState({ myRequests: res.data });
           }
         });
     }
   }
+  /* ComponentDidMount Function that runs when the component has successfully mounted   */
   componentDidMount() {
+    // call methods to load supervisors, projects and requests
     this.loadSupervisors();
     this.loadProjects();
     this.loadRequests();
   }
+  /* Render method for processing the code and returning elements to be displayed on screen */
   render() {
+    // check for any redirects
     if (this.state.redirect) {
+      // redirect to another page
       return <Redirect to={this.state.redirect} />
     }
+    // get UI element styled classes
     const { classes } = this.props;
 
+    // function for handling the sidebar navigation open
     const handleDrawerOpen = () => {
       this.setState({ open: true });
     };
+    // function for handling the sidebar navigation close
     const handleDrawerClose = () => {
       this.setState({ open: false });
     };
-    const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+    /* Returns UI elements for display
+      Returns the Dashboard skeleton with top and sidebar navigation, and a nested React Router for displaying page content inside the dashboard skeleton
+    */
     return (
       <div className={classes.root}>
         <CssBaseline />
+        {/* Top navigation bar */}
         <AppBar position="absolute" className={clsx(classes.appBar, this.state.open && classes.appBarShift)}>
           <Toolbar className={classes.toolbar}>
             <IconButton
@@ -290,6 +348,7 @@ class Dashboard extends Component {
             </Popper>
           </Toolbar>
         </AppBar>
+        {/* Side navigation drawer */}
         <Drawer
           variant="permanent"
           classes={{
@@ -325,22 +384,26 @@ class Dashboard extends Component {
         </Drawer>
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
+          {/* Page Content Display */}
           <Container maxWidth="lg" className={classes.container}>
+            {/* React Router for displaying relevant content based on the users navigation path */}
             <Switch>
               <ProtectedRoute exact path="/" component={() => <Home data={{ supervisors: this.state.supervisors, projects: this.state.allProjects, user: this.props.user }} />} />
-              <ProtectedRoute path="/manage/users" component={() => <Users />} admin={true} />
+              {/* Module Leader Routes/Components */}
+              <ProtectedRoute path="/manage/users" component={() => <Users reloadData={() => { this.loadSupervisors(); this.loadStudents(); }} />} admin={true} />
               <ProtectedRoute path="/view/user/:id" component={(props) => <ViewUser {...props} />} admin={true} />
               <ProtectedRoute path="/manage/projects" component={() => <AdminProjects data={{ projects: this.state.allProjects, supervisors: this.state.supervisors }} loadProjects={this.loadProjects} />} admin={true} />
               <ProtectedRoute path="/view/project/:id" component={(props) => <ViewProject {...props} />} supervisor={true} />
               <ProtectedRoute path="/manage/reports" component={() => <Reports data={{ projects: this.state.allProjects, supervisors: this.state.supervisors }} />} admin={true} />
 
+              {/* Student Routes/Components */}
               <ProtectedRoute path="/projects" component={() => <Projects user={this.props.user} projects={this.state.allProjects} supervisors={this.state.supervisors} reloadProjects={this.loadProjects} />} />
               <ProtectedRoute path="/supervisors" component={(props) => <Supervisors {...props} user={this.props.user} supervisors={this.state.supervisors} projects={this.state.allProjects} reloadRequests={this.loadRequests} />} />
-
               <ProtectedRoute path="/profile" component={() => <Profile user={this.props.user} />} />
               <ProtectedRoute path="/requests" component={(props) => <MyRequests {...props} requests={this.state.myRequests} user={this.props.user} loadRequests={this.loadRequests} loadProjects={this.loadProjects} />} />
               <ProtectedRoute path="/my-project" component={(props) => <MyProject {...props} data={this.state.myProjectData} reloadProject={this.loadProjects} project={this.state.myProjectData ? true : false} />} />
 
+              {/* Supervisor Routes/Components */}
               <ProtectedRoute path="/supervisor/students" component={() => <SupervisorStudents data={this.state.supervisorData} />} supervisor={true} />
               <ProtectedRoute path="/supervisor/projects" component={() => <SupervisorProjects data={this.state.supervisorData} reloadProjects={this.loadProjects} />} supervisor={true} />
               <ProtectedRoute path="/supervisor/project/:id" component={(props) => <MyProject {...props} reloadProject={this.loadProjects} supervisor={true} />} />
