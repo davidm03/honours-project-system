@@ -11,6 +11,8 @@ import Container from '@material-ui/core/Container';
 import axios from 'axios';
 import { Redirect } from 'react-router-dom';
 import React, { Component } from 'react';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
 
 const useStyles = theme => ({
   paper: {
@@ -35,45 +37,47 @@ const useStyles = theme => ({
 class Register extends Component {
   constructor(props) {
     super(props);
-    this.state = { redirect: null, emailError: null, studentIDError: null, passwordError: null, confPasswordError: null };
+    this.state = { redirect: null, emailError: null, studentIDError: null, passwordError: null, confPasswordError: null, checkConsent: false };
   }
   handleRegister = (e) => {
     e.preventDefault();
-    var email = document.getElementById('email').value;
-    var first_name = document.getElementById('first_name').value;
-    var surname = document.getElementById('surname').value;
-    var studentID = document.getElementById('studentID').value;
-    var password = document.getElementById('password').value;
-    var confPassword = document.getElementById('confPassword').value;
+    if (this.state.checkConsent) {
+      var email = document.getElementById('email').value;
+      var first_name = document.getElementById('first_name').value;
+      var surname = document.getElementById('surname').value;
+      var studentID = document.getElementById('studentID').value;
+      var password = document.getElementById('password').value;
+      var confPassword = document.getElementById('confPassword').value;
 
-    if (password !== confPassword) {
-      this.setState({ confPasswordError: "Passwords do not match." });
-    }
-    else if (!this.validateEmail(email)) {
-      this.setState({ emailError: "Invalid email address." })
-    }
-    else {
-      axios.post(process.env.REACT_APP_SERVER_URL + 'users/register', {
-        email: email,
-        first_name: first_name,
-        surname: surname,
-        studentID: studentID,
-        role: ["STUDENT"],
-        password: password
-      })
-        .then(res => {
-          if (res.data === true) {
-            this.setState({ redirect: "/login" });
-          }
-          else {
-            if (res.data.error === "email") {
-              this.setState({ emailError: res.data.message, studentIDError: null, passwordError: null, confPasswordError: null });
-            }
-            else if (res.data.error === "studentID") {
-              this.setState({ studentIDError: res.data.message, emailError: null, passwordError: null, confPasswordError: null });
-            }
-          }
+      if (password !== confPassword) {
+        this.setState({ confPasswordError: "Passwords do not match." });
+      }
+      else if (!this.validateEmail(email)) {
+        this.setState({ emailError: "Invalid email address." })
+      }
+      else {
+        axios.post(process.env.REACT_APP_SERVER_URL + 'users/register', {
+          email: email,
+          first_name: first_name,
+          surname: surname,
+          studentID: studentID,
+          role: ["STUDENT"],
+          password: password
         })
+          .then(res => {
+            if (res.data === true) {
+              this.setState({ redirect: "/login" });
+            }
+            else {
+              if (res.data.error === "email") {
+                this.setState({ emailError: res.data.message, studentIDError: null, passwordError: null, confPasswordError: null });
+              }
+              else if (res.data.error === "studentID") {
+                this.setState({ studentIDError: res.data.message, emailError: null, passwordError: null, confPasswordError: null });
+              }
+            }
+          })
+      }
     }
   }
   validateEmail = (email) => {
@@ -165,15 +169,40 @@ class Register extends Component {
               id="confPassword"
               autoComplete="new-password"
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              className={classes.submit}
-            >
-              Register
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={this.state.checkConsent}
+                  onChange={() => { this.setState({ checkConsent: !this.state.checkConsent }) }}
+                  name="checkboxConsent"
+                  color="primary"
+                />
+              }
+              label="I consent to my account details being stored and processed."
+            />
+            {this.state.checkConsent ? (
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+              >
+                Register
               </Button>
+            ) : (
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+                disabled
+              >
+                Register
+              </Button>
+            )}
+
             <Grid container justify="center">
               <Link href="/login" variant="body2">
                 {"Already registered? Sign in!"}
