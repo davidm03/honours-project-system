@@ -84,9 +84,9 @@ class Projects extends Component {
 
         // if there are supervisors and projects
         if (supervisors.length > 0 && projects.length > 0) {
-            var pushProject = false;
             // loop through projects
             for (let index = 0; index < projects.length; index++) {
+                var pushProject = false;
                 // get current project and supervisor
                 const p = projects[index];
                 var supervisor = this.state.supervisors.find(s => s._id === p.supervisorID);
@@ -179,13 +179,17 @@ class Projects extends Component {
                                             size="small"
                                             color="primary"
                                             endIcon={<CheckCircleIcon />}
-                                            onClick={() => this.setState({ selectedProject: p, selectedSupervisor: supervisor, expandProjectDialog: true })}
+                                            onClick={() => {
+                                                var s = this.state.supervisors.find(s => s._id === p.supervisorID);
+                                                this.setState({ selectedProject: p, selectedSupervisor: s, expandProjectDialog: true });
+                                            }
+                                            }
                                         >
                                             Select This Project
                                 </Button>
                                     </CardActions>
                                 }
-                            </Card>
+                            </Card >
                         );
                     }
                 }
@@ -258,13 +262,15 @@ class Projects extends Component {
                     )}
                 </Grid>
                 {/* Project displays */}
-                {projectDisplay}
+                { projectDisplay}
                 {/* Error message for no projects found */}
-                {projectDisplay.length === 0 && (
-                    <Alert variant="outlined" severity="info">
-                        No Pre-Defined Projects Available Right Now - Check Back Later or Contact the Module Leader.
-                    </Alert>
-                )}
+                {
+                    projectDisplay.length === 0 && (
+                        <Alert variant="outlined" severity="info">
+                            No Pre-Defined Projects Available Right Now - Check Back Later or Contact the Module Leader.
+                        </Alert>
+                    )
+                }
 
                 {/* Dialog for selecting a project */}
                 <Dialog open={this.state.expandProjectDialog} onClose={() => this.setState({ expandProjectDialog: false })}>
@@ -323,7 +329,7 @@ class Projects extends Component {
                         </Button>
                     </DialogActions>
                 </Dialog>
-            </div>
+            </div >
         );
     }
 }
