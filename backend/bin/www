@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+/* 
+  David McDowall - Honours Project
+  WWW file for defining server side attributes
+*/
+
 /**
  * Module dependencies.
  */
