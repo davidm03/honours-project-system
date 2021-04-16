@@ -17,6 +17,6 @@ The Honours Project system is a full-stack web application developed with MongoD
 
 Sample logins have been created for testing. 
 
-*admin@admin.com:admin
-*supervisor@supervisor.com:supervisor
-*student@student.com:student
+* admin@admin.com:admin
+* supervisor@supervisor.com:supervisor
+* student@student.com:student
